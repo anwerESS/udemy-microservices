@@ -1,0 +1,38 @@
+NOTES:
+
+
+
+
+
+ANNOTATIONS:
+	@MappedSuperclass
+		- This annotation is from Jakarta Persistence API (JPA).
+		- It indicates that this class is a superclass for other entities, and its fields (e.g., createdAt, createdBy, etc.) will be inherited by the child entities.
+		- The BaseEntity itself is not an entity (it doesn't represent a table), but its fields will be included in the tables of the child entities.
+
+	@EntityListeners(AuditingEntityListener.class)
+		- This annotation enables auditing for the entity.
+		- AuditingEntityListener is a Spring Data JPA class that automatically populates fields annotated with @CreatedDate, @CreatedBy, @LastModifiedDate, and @LastModifiedBy when the entity is created or updated.
+
+
+	@CreatedDate
+	- This annotation is from Spring Data JPA.
+	- It automatically sets the field (createdAt (exemple)) to the current date and time when the entity is first persisted (created).
+
+	@CreatedBy
+	- This annotation is from Spring Data JPA.
+	- It automatically sets the field (createdBy (exemple)) to the current user (or principal) who created the entity. This requires an implementation of AuditorAware to provide the current user.
+
+	@LastModifiedDate
+	- This annotation is from Spring Data JPA.
+	- It automatically updates the field (updatedAt (exemple)) to the current date and time whenever the entity is modified.
+
+	@LastModifiedBy
+	- This annotation is from Spring Data JPA.
+	- It automatically updates the field (updatedBy (exemple)) to the current user (or principal) who modified the entity. This also requires an implementation of AuditorAware.
+
+	@Column
+		- This annotation is from Jakarta Persistence API (JPA).
+		- It specifies additional properties for the database column:
+			* updatable = false: The column cannot be updated after the entity is created (e.g., createdAt and createdBy).
+			* insertable = false: The column cannot be inserted manually (e.g., updatedAt and updatedBy will be managed by the AuditingEntityListener

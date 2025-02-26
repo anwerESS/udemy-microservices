@@ -1,0 +1,395 @@
+{
+	"info": {
+		"_postman_id": "1e62aa23-ea04-4e70-b3e9-21bef3a8497b",
+		"name": "udemy-microservices",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20306909"
+	},
+	"item": [
+		{
+			"name": "accounts",
+			"item": [
+				{
+					"name": "/sayHello",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/sayHello",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sayHello"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateAccount",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Madan Reddy\",\n    \"email\": \"tutor@eazybytes\",\n    \"mobileNumber\": \"4364437687\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/create",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FetchAccountDetails",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/fetch?mobileNumber=4364437687",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"fetch"
+							],
+							"query": [
+								{
+									"key": "mobileNumber",
+									"value": "4364437687"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateAccountDetails",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Madan Reddy\",\n    \"email\": \"tutor@eazybytes9\",\n    \"mobileNumber\": \"4364437687\",\n    \"accountDetails\": {\n        \"accountNumber\": 1811739552,\n        \"accountType\": \"Savings9\",\n        \"branchAddress\": \"1234 Main Street, New York9\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/update",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteAccountDetails",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/delete?mobileNumber=4364437687",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"delete"
+							],
+							"query": [
+								{
+									"key": "mobileNumber",
+									"value": "4364437687"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "loans",
+			"item": [
+				{
+					"name": "CreateLoan",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8090/api/create?mobileNumber=4354437687",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8090",
+							"path": [
+								"api",
+								"create"
+							],
+							"query": [
+								{
+									"key": "mobileNumber",
+									"value": "4354437687"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FetchLoanDetails",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8090/api/fetch?mobileNumber=4354437687",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8090",
+							"path": [
+								"api",
+								"fetch"
+							],
+							"query": [
+								{
+									"key": "mobileNumber",
+									"value": "4354437687"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateLoanDetails",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"mobileNumber\": \"4354437687\",\n    \"loanNumber\": \"100002943076\",\n    \"loanType\": \"vehicule Loan\",\n    \"totalLoan\": 100000,\n    \"amountPaid\": 0,\n    \"outstandingAmount\": 100000\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8090/api/update",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8090",
+							"path": [
+								"api",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteLoanDetails",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8090/api/delete?mobileNumber=4354437687",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8090",
+							"path": [
+								"api",
+								"delete"
+							],
+							"query": [
+								{
+									"key": "mobileNumber",
+									"value": "4354437687"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "cards",
+			"item": [
+				{
+					"name": "CreateCard",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9000/api/create?mobileNumber=4354437687",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9000",
+							"path": [
+								"api",
+								"create"
+							],
+							"query": [
+								{
+									"key": "mobileNumber",
+									"value": "4354437687"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FetchCardDetails",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9000/api/fetch?mobileNumber=4354437687",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9000",
+							"path": [
+								"api",
+								"fetch"
+							],
+							"query": [
+								{
+									"key": "mobileNumber",
+									"value": "4354437687"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateCardDetails",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"mobileNumber\": \"4354437687\",\n    \"cardNumber\": \"100761624192\",\n    \"cardType\": \"Credit Card2\",\n    \"totalLimit\": 100000,\n    \"amountUsed\": 0,\n    \"availableAmount\": 100000\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9000/api/update",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9000",
+							"path": [
+								"api",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteCardDetails",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9000/api/delete?mobileNumber=4354437687",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9000",
+							"path": [
+								"api",
+								"delete"
+							],
+							"query": [
+								{
+									"key": "mobileNumber",
+									"value": "4354437687"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "127.0.0.1:8080/api",
+			"type": "string"
+		}
+	]
+}
