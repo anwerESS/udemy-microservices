@@ -1,4 +1,22 @@
 NOTES:
+	- Generate jar file:
+		* add in pom.xml (<packaging>jar</packaging>)
+		* mvn clean package
+		* the genrated jar (accounts-0.0.1-SNAPSHOT.jar) (its name based on <artifactId>accounts</artifactId> and<version>0.0.1-SNAPSHOT</version>)
+		* run spring (mvn spring-boot:run) or (java -jar target/accounts-0.0.1-SNAPSHOT.jar)
+
+	- create, build and run docker image with 'Dockerfile'
+		* create Dockerfile file
+		* docker build . -t anweress/accounts:s4 # (if docker file is in the current directory)
+		* docker images # (list images)
+		* docker inspect image <imageid> # (show some information about the image)
+		* docker run -d -p 8080:8080 anweress/accounts:s4 # (run the image on port 8080 and map the port 8080 of the container to the host machine)
+		* docker ps # (list running containers)
+		* docker ps -a # (list all containers)
+		* docker stop <containerid> # (stop the container)
+		* docker start <containerid> # (start an exising container  that has been stopped or paused)
+		* docker image push docker.io/anweress/accounts:s4 # (push the image to docker hub)
+
 
 
 
