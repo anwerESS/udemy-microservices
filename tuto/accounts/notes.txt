@@ -17,6 +17,41 @@ NOTES:
 		* docker start <containerid> # (start an exising container  that has been stopped or paused)
 		* docker image push docker.io/anweress/accounts:s4 # (push the image to docker hub)
 
+	- read configuration
+		* Using @Value (Injecting individual properties in small-scale applications.)
+		    @Value("${build.version}")
+            private String buildVersion;
+
+		* Using Environment Interface (Dynamically accessing properties at runtime or checking their existence)
+		    @Autowired
+            private Environment environment;
+
+            environment.getProperty("JAVA_HOME"); // get JAVA_HOME property
+
+		* Using @ConfigurationProperties (Grouping and managing multiple related properties in a type-safe way)
+			// application.properties
+			accounts:
+              message: "Welcome to EazyBank accounts related local APIs "
+              contactDetails:
+                name: "John Doe - Developer"
+                email: "john@eazybank.com"
+              onCallSupport:
+                - (555) 555-1234
+                - (555) 523-1345
+
+             // AccountsContactInfoDto.java
+             @ConfigurationProperties(prefix = "accounts")
+             public record AccountsContactInfoDto(String message,
+                                                  Map<String, String> contactDetails, List<String> onCallSupport) {
+
+             }
+
+             // AccountsController.java
+             @EnableConfigurationProperties(value=AccountsContactInfoDto.class)
+             public class AccountsController {
+             	    @Autowired
+                    private AccountsContactInfoDto accountsContactInfoDto;
+             }
 
 
 
