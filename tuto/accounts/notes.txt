@@ -53,7 +53,16 @@ NOTES:
                     private AccountsContactInfoDto accountsContactInfoDto;
              }
 
-
+	- externalized configurations in springboot
+		* using command line arguments
+			java -jar accounts-0.0.1-SNAPSHOT.jar --server.port=8080 --spring.profiles.active=dev --buid.version=1.0
+		* using jvm arguments:
+			-Dserver.port=8080 -Dspring.profiles.active=dev -Dbuid.version=1.0
+		* using environment variables
+			export SERVER_PORT=8081
+			export SPRING_PROFILES_ACTIVE=qa
+			export BUILD_VERSION=2.0
+			java -jar accounts-0.0.1-SNAPSHOT.jar
 
 
 
