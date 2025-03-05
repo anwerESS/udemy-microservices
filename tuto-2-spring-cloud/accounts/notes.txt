@@ -1,0 +1,100 @@
+NOTES:
+	- Generate jar file:
+		* add in pom.xml (<packaging>jar</packaging>)
+		* mvn clean package
+		* the genrated jar (accounts-0.0.1-SNAPSHOT.jar) (its name based on <artifactId>accounts</artifactId> and<version>0.0.1-SNAPSHOT</version>)
+		* run spring (mvn spring-boot:run) or (java -jar target/accounts-0.0.1-SNAPSHOT.jar)
+
+	- create, build and run docker image with 'Dockerfile'
+		* create Dockerfile file
+		* docker build . -t anweress/accounts:s4 # (if docker file is in the current directory)
+		* docker images # (list images)
+		* docker inspect image <imageid> # (show some information about the image)
+		* docker run -d -p 8080:8080 anweress/accounts:s4 # (run the image on port 8080 and map the port 8080 of the container to the host machine)
+		* docker ps # (list running containers)
+		* docker ps -a # (list all containers)
+		* docker stop <containerid> # (stop the container)
+		* docker start <containerid> # (start an exising container  that has been stopped or paused)
+		* docker image push docker.io/anweress/accounts:s4 # (push the image to docker hub)
+
+	- read configuration
+		* Using @Value (Injecting individual properties in small-scale applications.)
+		    @Value("${build.version}")
+            private String buildVersion;
+
+		* Using Environment Interface (Dynamically accessing properties at runtime or checking their existence)
+		    @Autowired
+            private Environment environment;
+
+            environment.getProperty("JAVA_HOME"); // get JAVA_HOME property
+
+		* Using @ConfigurationProperties (Grouping and managing multiple related properties in a type-safe way)
+			// application.properties
+			accounts:
+              message: "Welcome to EazyBank accounts related local APIs "
+              contactDetails:
+                name: "John Doe - Developer"
+                email: "john@eazybank.com"
+              onCallSupport:
+                - (555) 555-1234
+                - (555) 523-1345
+
+             // AccountsContactInfoDto.java
+             @ConfigurationProperties(prefix = "accounts")
+             public record AccountsContactInfoDto(String message,
+                                                  Map<String, String> contactDetails, List<String> onCallSupport) {
+
+             }
+
+             // AccountsController.java
+             @EnableConfigurationProperties(value=AccountsContactInfoDto.class)
+             public class AccountsController {
+             	    @Autowired
+                    private AccountsContactInfoDto accountsContactInfoDto;
+             }
+
+	- externalized configurations in springboot
+		* using command line arguments
+			java -jar accounts-0.0.1-SNAPSHOT.jar --server.port=8080 --spring.profiles.active=dev --buid.version=1.0
+		* using jvm arguments:
+			-Dserver.port=8080 -Dspring.profiles.active=dev -Dbuid.version=1.0
+		* using environment variables
+			export SERVER_PORT=8081
+			export SPRING_PROFILES_ACTIVE=qa
+			export BUILD_VERSION=2.0
+			java -jar accounts-0.0.1-SNAPSHOT.jar
+
+
+
+ANNOTATIONS:
+	@MappedSuperclass
+		- This annotation is from Jakarta Persistence API (JPA).
+		- It indicates that this class is a superclass for other entities, and its fields (e.g., createdAt, createdBy, etc.) will be inherited by the child entities.
+		- The BaseEntity itself is not an entity (it doesn't represent a table), but its fields will be included in the tables of the child entities.
+
+	@EntityListeners(AuditingEntityListener.class)
+		- This annotation enables auditing for the entity.
+		- AuditingEntityListener is a Spring Data JPA class that automatically populates fields annotated with @CreatedDate, @CreatedBy, @LastModifiedDate, and @LastModifiedBy when the entity is created or updated.
+
+
+	@CreatedDate
+	- This annotation is from Spring Data JPA.
+	- It automatically sets the field (createdAt (exemple)) to the current date and time when the entity is first persisted (created).
+
+	@CreatedBy
+	- This annotation is from Spring Data JPA.
+	- It automatically sets the field (createdBy (exemple)) to the current user (or principal) who created the entity. This requires an implementation of AuditorAware to provide the current user.
+
+	@LastModifiedDate
+	- This annotation is from Spring Data JPA.
+	- It automatically updates the field (updatedAt (exemple)) to the current date and time whenever the entity is modified.
+
+	@LastModifiedBy
+	- This annotation is from Spring Data JPA.
+	- It automatically updates the field (updatedBy (exemple)) to the current user (or principal) who modified the entity. This also requires an implementation of AuditorAware.
+
+	@Column
+		- This annotation is from Jakarta Persistence API (JPA).
+		- It specifies additional properties for the database column:
+			* updatable = false: The column cannot be updated after the entity is created (e.g., createdAt and createdBy).
+			* insertable = false: The column cannot be inserted manually (e.g., updatedAt and updatedBy will be managed by the AuditingEntityListener

@@ -1,0 +1,14 @@
+
+
+NOTES:
+	- docker compose
+		* docker compose up -d # (start the containers in the background)
+		* docker compose down # (stop and remove the containers)
+		└──╼ $docker ps
+		CONTAINER ID   IMAGE                  COMMAND                  CREATED         STATUS         PORTS                    NAMES
+		9b0cac83af40   anweress/accounts:s4   "java -jar accounts-…"   7 seconds ago   Up 7 seconds   0.0.0.0:8080->8080/tcp   accounts-ms
+		b4c04f31a3f0   anweress/cards:s4      "java -cp @/app/jib-…"   7 seconds ago   Up 7 seconds   0.0.0.0:9000->9000/tcp   cards-ms
+		8ab628c11d34   anweress/loans:s4      "/cnb/process/web"       7 seconds ago   Up 7 seconds   0.0.0.0:8090->8090/tcp   loans-ms
+		* docker compose down # (stop and remove the containers)
+		* docker compose stop # (stop the containers)
+		* docker compose start # (start the containers)
