@@ -2,13 +2,22 @@ spring:
   application:
     name: "configserver"  # Sets the application name to "configserver"
   profiles:
-    active: native  # Activates the 'native' profile (useful when not using a remote Git repository)
+    active: git
+  #    active: native  # Activates the 'native' profile (useful when not using a remote Git repository)
   cloud:
     config:
       server:
-        native:
+#        native:
 #          search-locations: "classpath:/config"  # Specifies that configuration files are located in the 'config' folder inside the classpath
-          search-locations: "file:///home//anweress//spring-config//config"
-
+#          search-locations: "file:///home//anweress//spring-config//config"
+        git:
+          uri: "https://github.com/anwerESS/udemy-microservices-config.git"
+          # Specifies the default branch (or tag) to use. In this case, it?s set to main
+          default-label: main
+          timeout: 5
+          #  If true, the Config Server will clone the Git repository when it starts up
+          clone-on-start: true
+          #  If true, the Config Server will forcefully pull the latest changes from the Git repository on startup.
+          force-pull: true
 server:
   port: 8071  # Config Server runs on port 8071

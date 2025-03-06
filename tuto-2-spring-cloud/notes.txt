@@ -96,3 +96,50 @@ NOTES:
 						}
 					]
                 }
+		* from github
+			- update application.yml (serverconfig
+			  profiles:
+                active: git
+              cloud:
+                config:
+                  server:
+                    git:
+                      uri: "https://github.com/anwerESS/udemy-microservices-config.git"
+                      default-label: main
+                      timeout: 5
+                      clone-on-start: true
+                      force-pull: true)
+			- curl http://localhost:8071/accounts/qa
+				{
+					"name": "accounts",
+					"profiles": [
+						"qa"
+					],
+					"label": null,
+					"version": "28128b0bb42454a869b7ac213e6c716714a40c24",
+					"state": "",
+					"propertySources": [
+						{
+							"name": "https://github.com/anwerESS/udemy-microservices-config.git/accounts-qa.yml",
+							"source": {
+								"build.version": "2.0",
+								"accounts.message": "Welcome to EazyBank accounts related QA APIs ",
+								"accounts.contactDetails.name": "Smitha Ray - QA Lead",
+								"accounts.contactDetails.email": "smitha@eazybank.com",
+								"accounts.onCallSupport[0]": "(666) 265-3765",
+								"accounts.onCallSupport[1]": "(666) 734-8371"
+							}
+						},
+						{
+							"name": "https://github.com/anwerESS/udemy-microservices-config.git/accounts.yml",
+							"source": {
+								"build.version": "3.0",
+								"accounts.message": "Welcome to EazyBank accounts related local APIs ",
+								"accounts.contactDetails.name": "John Doe - Developer",
+								"accounts.contactDetails.email": "john@eazybank.com",
+								"accounts.onCallSupport[0]": "(555) 555-1234",
+								"accounts.onCallSupport[1]": "(555) 523-1345"
+							}
+						}
+					]
+				}
