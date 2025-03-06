@@ -1,2 +1,13 @@
+spring:
+  application:
+    name: "configserver"  # Sets the application name to "configserver"
+  profiles:
+    active: native  # Activates the 'native' profile (useful when not using a remote Git repository)
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: "classpath:/config"  # Specifies that configuration files are located in the 'config' folder inside the classpath
+
 server:
-  port: 8071
+  port: 8071  # Config Server runs on port 8071

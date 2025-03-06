@@ -12,3 +12,51 @@ NOTES:
 		* docker compose down # (stop and remove the containers)
 		* docker compose stop # (stop the containers)
 		* docker compose start # (start the containers)
+
+
+	- configure a Spring Cloud Config Server:
+		* from a class path
+			1. In your Config Server project, add the following dependencies to your pom.xml
+				<dependency>
+					<groupId>org.springframework.cloud</groupId>
+					<artifactId>spring-cloud-config-server</artifactId>
+				</dependency>
+				...
+			  <dependencyManagement>
+				<dependencies>
+				  <dependency>
+					<groupId>org.springframework.cloud</groupId>
+					<artifactId>spring-cloud-dependencies</artifactId>
+					<version>${spring-cloud.version}</version>
+					<type>pom</type>
+					<scope>import</scope>
+				  </dependency>
+				</dependencies>
+			  </dependencyManagement>
+			2.  Enable the Config Server with @EnableConfigServer in main class
+			3.  Configure the Config Server to Use Classpath (application.yml)
+				server:
+				  port: 8888  # Default port for Config Server
+
+				spring:
+				  profiles:
+					active: native  # Use the "native" profile to load from classpath
+				  cloud:
+					config:
+					  server:
+						native:
+						  search-locations: classpath:/config  # Look for config files in /config directory on classpath
+			4. Add Configuration Files to the Classpath
+				└── config
+					├── accounts-prod.yml
+					├── accounts-qa.yml
+					├── accounts.yml
+					├── cards-prod.yml
+					├── cards-qa.yml
+					├── cards.yml
+					├── loans-prod.yml
+					├── loans-qa.yml
+					└── loans.yml
+			5. Start the Config Server
+			6. Access the Config Server from a Client (application.yml)
+				spring.config.import : "optional:configserver:http://localhost:8f071"
