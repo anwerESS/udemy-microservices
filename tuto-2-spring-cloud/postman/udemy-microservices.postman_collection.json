@@ -175,6 +175,38 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "contact-info",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/contact-info",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"contact-info"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -330,26 +362,6 @@
 				},
 				{
 					"name": "contact-info",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8090/api/contact-info",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8090",
-							"path": [
-								"api",
-								"contact-info"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "contact-info",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -366,12 +378,12 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/api/contact-info",
+							"raw": "http://localhost:8090/api/contact-info",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8090",
 							"path": [
 								"api",
 								"contact-info"
@@ -547,6 +559,62 @@
 							"path": [
 								"api",
 								"contact-info"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "configserver",
+			"item": [
+				{
+					"name": "encrypt",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "aishwarya@eazybank.com",
+							"options": {
+								"raw": {
+									"language": "text"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8071/encrypt",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8071",
+							"path": [
+								"encrypt"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "decrypt",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "e26616000cb4bcd41385888c6ac67d03593f5b701f16a8a899021af1b79768228cac3d1897b426bba23d043c0e778dab"
+						},
+						"url": {
+							"raw": "http://localhost:8071/decrypt",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8071",
+							"path": [
+								"decrypt"
 							]
 						}
 					},
