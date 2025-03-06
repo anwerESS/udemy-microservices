@@ -22,3 +22,12 @@ spring:
   config:
 #    import: "configserver:http://localhost:8071"
     import: "optional:configserver:http://localhost:8071" # if the Config Server is optional, and you want the application to start even if the Config Server is unavailable.
+
+management:
+  endpoints:
+    web:
+      exposure:
+#        include: health, info, metrics  # Exposes only the health, info, and metrics endpoints.
+        include: "*"  # Exposes all Actuator endpoints (e.g., /actuator/health, /actuator/info, /actuator/metrics, etc.).
+          # This is useful for monitoring and debugging but can be a security risk in production.
+        # Consider restricting access to specific endpoints or securing them with Spring Security.

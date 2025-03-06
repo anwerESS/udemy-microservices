@@ -143,3 +143,17 @@ NOTES:
 						}
 					]
 				}
+	- refresh config at runtime
+		* using refresh actuator path
+			1. add acutuator dependency in pom.xml
+			2. add refresh actuator path in application.yml
+				management:
+				  endpoints:
+					web:
+					  exposure:
+						include: refresh
+			3. curl http://localhost:8080/actuator/refresh
+				[
+					"config.client.version",
+					"accounts.message"
+				]
