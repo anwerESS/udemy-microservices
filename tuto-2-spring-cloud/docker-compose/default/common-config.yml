@@ -1,0 +1,21 @@
+services:
+  network-deploy-service:
+    networks:
+      - anweress  # Connects the service to the "anweress" network.
+
+  microservice-base-config:
+    extends:
+      service: network-deploy-service  # Inherits configuration from `network-deploy-service`.
+    deploy:
+      resources:
+        limits:
+          memory: 700m  # Limits the container's memory usage to 700 MB.
+    environment:
+      SPRING_RABBITMQ_HOST: "rabbit"  # Configures the RabbitMQ host for Spring applications.
+
+  microservice-configserver-config:
+    extends:
+      service: microservice-base-config  # Inherits configuration from `microservice-base-config`.
+    environment:
+      SPRING_PROFILES_ACTIVE: default  # Sets the active Spring profile to "default".
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/  # Configures the application to fetch configuration from the Config Server.

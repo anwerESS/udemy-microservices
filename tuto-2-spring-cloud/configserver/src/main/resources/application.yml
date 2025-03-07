@@ -36,4 +36,18 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: "*"  # Exposes all Actuator endpoints over HTTP. Use with caution in production.
+          # This allows access to endpoints like /actuator/health, /actuator/info, /actuator/metrics, etc.
+        # In production, consider exposing only specific endpoints or securing them with Spring Security.
+  health:
+    readiness-state:
+      enabled: true  # Enables the readiness state health indicator, which indicates whether the application is ready to handle traffic.
+      # This is useful for Kubernetes deployments to determine when the application is ready to receive requests.
+    liveness-state:
+      enabled: true  # Enables the liveness state health indicator, which indicates whether the application is running and healthy.
+      # If the application becomes unresponsive or unhealthy, Kubernetes can restart the pod based on this indicator.
+  endpoint:
+    health:
+      probes:
+        enabled: true  # Enables Kubernetes-specific health probes (/actuator/health/liveness and /actuator/health/readiness).
+        # These are used by Kubernetes to check the liveness and readiness of the application.
