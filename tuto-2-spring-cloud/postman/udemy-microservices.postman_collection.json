@@ -619,6 +619,55 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "RefreshConfig",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/actuator/refresh",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"actuator",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BusRefresh",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/actuator/busrefresh",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"actuator",
+								"busrefresh"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}

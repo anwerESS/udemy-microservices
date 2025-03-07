@@ -19,9 +19,21 @@ spring:
           clone-on-start: true
           #  If true, the Config Server will forcefully pull the latest changes from the Git repository on startup.
           force-pull: true
+  rabbitmq:
+    host: "localhost"
+    port: 5672
+    username: "guest"
+    password: "guest"
+
 
 encrypt:
   key: "45D81EC1EF61DF9AD8D3E5BB397F9"
 
 server:
   port: 8071  # Config Server runs on port 8071
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

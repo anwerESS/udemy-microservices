@@ -22,6 +22,12 @@ spring:
   config:
 #    import: "configserver:http://localhost:8071"
     import: "optional:configserver:http://localhost:8071" # if the Config Server is optional, and you want the application to start even if the Config Server is unavailable.
+  rabbitmq:
+    host: "localhost"
+    port: 5672
+    username: "guest"
+    password: "guest"
+
 
 management:
   endpoints:

@@ -157,3 +157,23 @@ NOTES:
 					"config.client.version",
 					"accounts.message"
 				]
+		* refresh config using spring cloud bus
+			1. add spring cloud bus dependency in pom.xml
+			    <dependency>
+                  <groupId>org.springframework.cloud</groupId>
+                  <artifactId>spring-cloud-starter-bus-amqp</artifactId>
+                </dependency>
+			2. add refresh actuator path in all application.yml
+				spring:
+				  rabbitmq:
+					host: "localhost"
+					port: 5672
+					username: "guest"
+					password: "guest"
+				management:
+				  endpoints:
+					web:
+					  exposure:
+						include: busrefresh
+			3. docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4.0-management
+			4. http://localhost:8080/actuator/refresh
