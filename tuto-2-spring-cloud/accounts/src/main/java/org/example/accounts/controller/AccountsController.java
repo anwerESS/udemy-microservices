@@ -52,8 +52,12 @@ public class AccountsController {
     @Autowired
     private AccountsContactInfoDto accountsContactInfoDto;
 
+
     private IAccountsService iAccountsService;
 
+    public AccountsController(IAccountsService iAccountsService) {
+        this.iAccountsService = iAccountsService;
+    }
     /// ======================= createAccount =======================
     @Operation(
             summary = "Create Account REST API",

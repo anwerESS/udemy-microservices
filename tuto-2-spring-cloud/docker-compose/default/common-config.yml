@@ -1,4 +1,17 @@
 services:
+  microservice-db-config:
+    extends:
+      service: network-deploy-service
+    image: mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 10s
+      retries: 10
+      interval: 10s
+      start_period: 10s
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+
   network-deploy-service:
     networks:
       - anweress  # Connects the service to the "anweress" network.
@@ -10,8 +23,8 @@ services:
       resources:
         limits:
           memory: 700m  # Limits the container's memory usage to 700 MB.
-    environment:
-      SPRING_RABBITMQ_HOST: "rabbit"  # Configures the RabbitMQ host for Spring applications.
+#    environment:
+#      SPRING_RABBITMQ_HOST: "rabbit"  # Configures the RabbitMQ host for Spring applications.
 
   microservice-configserver-config:
     extends:
@@ -19,3 +32,5 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: default  # Sets the active Spring profile to "default".
       SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/  # Configures the application to fetch configuration from the Config Server.
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root

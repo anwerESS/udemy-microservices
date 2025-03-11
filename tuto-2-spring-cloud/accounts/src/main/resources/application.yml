@@ -7,26 +7,32 @@ spring:
   profiles:
     active: "prod" # default
   datasource:
-    url: jdbc:h2:mem:testdb
-    driverClassName: org.h2.Driver
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true
+    url: jdbc:mysql://localhost:3306/accountsdb
+    username: root
+    password: root
+#    url: jdbc:h2:mem:testdb
+#    driverClassName: org.h2.Driver
+#    username: sa
+#    password:
+#  h2:
+#    console:
+#      enabled: true
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    hibernate:
-      ddl-auto: update
+#    database-platform: org.hibernate.dialect.H2Dialect
+#    hibernate:
+#      ddl-auto: update
     show-sql: true
+  sql:
+    init:
+      mode: always # always execute the SQL initialization scripts (e.g., schema.sql and data.sql) every time the application starts, regardless of whether the database already exists or not.
   config:
 #    import: "configserver:http://localhost:8071"
     import: "optional:configserver:http://localhost:8071" # if the Config Server is optional, and you want the application to start even if the Config Server is unavailable.
-  rabbitmq:
-    host: "localhost"
-    port: 5672
-    username: "guest"
-    password: "guest"
+#  rabbitmq:
+#    host: "localhost"
+#    port: 5672
+#    username: "guest"
+#    password: "guest"
 
 
 management:
