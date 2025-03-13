@@ -202,3 +202,13 @@ NOTES:
 		* docker run -p 3306:3306 --name accountsdb -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=accountsdb -d mysql
 		* docker run -p 3307:3306 --name loansdb -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=loansdb -d mysql
 		* docker run -p 3308:3306 --name cardsdb -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=cardsdb -d mysql
+	- setup service discovery agent using eureka
+		* in pom.xml add  Eureka Server that acts as a service registry for microservices, enabling service discovery and load balancing.
+			    <dependency>
+                  <groupId>org.springframework.cloud</groupId>
+                  <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+                </dependency>
+		* add eureka server config (https://github.com/anwerESS/udemy-microservices-config/blob/main/eurekaserver.yml)
+		* add @EnableEurekaServer in EurekaServerApplication.java
+		* configure eureka server port in application.yml and expose health actuator
+		* http://localhost:8070 # show eureka dashbord
