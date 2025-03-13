@@ -670,6 +670,43 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "eurekaserver",
+			"item": [
+				{
+					"name": "eureka_apps",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true
+						}
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8070/eureka/apps/cards",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8070",
+							"path": [
+								"eureka",
+								"apps",
+								"cards"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [

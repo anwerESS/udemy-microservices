@@ -212,3 +212,36 @@ NOTES:
 		* add @EnableEurekaServer in EurekaServerApplication.java
 		* configure eureka server port in application.yml and expose health actuator
 		* http://localhost:8070 # show eureka dashbord
+	- setup service registry
+		* in pom.xml add  Eureka Client
+		    <dependency>
+              <groupId>org.springframework.cloud</groupId>
+              <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+            </dependency>
+         * update application.yml with eureka server details
+			 management:
+				...
+			   endpoint:
+				 shutdown:
+				   access: unrestricted
+			   info:
+				 env:
+				   enabled: true
+
+			 eureka:
+			   instance:
+				 preferIpAddress: true
+			   client:
+				 fetchRegistry: true
+				 registerWithEureka: true
+				 serviceUrl:
+				   defaultZone: http://localhost:8070/eureka/
+
+			 info:
+			   app:
+				 name: "accounts"
+				 description: "Eazy Bank Accounts Application"
+				 version: "1.0.0"
+		* http://localhost:8070/eureka/apps # show registred apps , instances and health status...etc
+			+ by default the formmat is xml
+			+ to change the format to json (add the header Accept: application/json)

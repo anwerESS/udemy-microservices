@@ -38,3 +38,32 @@ management:
     web:
       exposure:
         include: "*"
+  endpoint:
+    shutdown:
+      access: unrestricted  # Allows unrestricted access to the `/actuator/shutdown` endpoint.
+      # This endpoint can be used to gracefully shut down the application.
+      # Be cautious with this setting, as it can be a security risk in pro
+  info:
+    env:
+      enabled: true  # Enables the inclusion of environment information in the `/actuator/info` endpoint.
+      # When enabled, the `/actuator/info` endpoint will include details about the application's environment (e.g., system properties, environment variables).
+eureka:
+  instance:
+    preferIpAddress: true  # Configures the Eureka instance to use its IP address instead of its hostname when registering with the Eureka Server.
+    # This is useful in environments where hostnames are not reliably resolvable (e.g., Docker, Kubernetes).
+  client:
+    fetchRegistry: true  # Enables fetching the registry (list of registered services) from the Eureka Server.
+    # When set to true, the application will fetch information about other services registered with Eureka.
+
+    registerWithEureka: true  # Enables registering this application with the Eureka Server.
+    # When set to true, the application will register itself as a service with Eureka.
+
+    serviceUrl:
+      defaultZone: http://localhost:8070/eureka/  # Specifies the URL of the Eureka Server.
+      # Here, it points to the Eureka Server running on `localhost` at port `8070`.
+
+info:
+  app:
+    name: "loans"  # Specifies the name of the application. This is typically used for identification and logging purposes.
+    description: "Eazy Bank Loans Application"  # Provides a brief description of the application. This can be useful for documentation or monitoring tools.
+    version: "1.0.0"  # Specifies the version of the application. This is useful for tracking releases and ensuring compatibility.
