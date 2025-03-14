@@ -245,3 +245,19 @@ NOTES:
 		* http://localhost:8070/eureka/apps # show registred apps , instances and health status...etc
 			+ by default the formmat is xml
 			+ to change the format to json (add the header Accept: application/json)
+	- shutting down a microservice
+		* add the fllowing configuration in application.yml
+			management:
+			  endpoint:
+				shutdown:
+				  enabled: true  # Enable the shutdown endpoint.
+			  endpoints:
+				web:
+				  exposure:
+					include: shutdown  # Expose the shutdown endpoint over HTTP.
+		* http://localhost:8080/actuator/shutdown
+		* benefits of shutting down a microservice over kill it:
+			1. microservice stopped gracefully (Stop accepting new requests, Complete ongoing requests...etc)
+			2. Clean Resource Release
+			3. No Interrupted Operations
+			4.Better for Debugging and Monitoring
