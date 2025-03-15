@@ -1,6 +1,7 @@
 package org.example.accounts.mapper;
 
 
+import org.example.accounts.dto.CustomerDetailsDto;
 import org.example.accounts.dto.CustomerDto;
 import org.example.accounts.entity.Customer;
 
@@ -20,4 +21,10 @@ public class CustomerMapper {
         return customer;
     }
 
+    public static CustomerDetailsDto mapToCustomerDetailsDto(Customer customer, CustomerDetailsDto customerDetailsDto) {
+        customerDetailsDto.setName(customer.getName());
+        customerDetailsDto.setEmail(customer.getEmail());
+        customerDetailsDto.setMobileNumber(customer.getMobileNumber());
+        return customerDetailsDto;
+    }
 }
