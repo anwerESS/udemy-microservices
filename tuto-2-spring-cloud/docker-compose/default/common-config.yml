@@ -31,6 +31,13 @@ services:
       service: microservice-base-config  # Inherits configuration from `microservice-base-config`.
     environment:
       SPRING_PROFILES_ACTIVE: default  # Sets the active Spring profile to "default".
-      SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/  # Configures the application to fetch configuration from the Config Server.
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/  # Configures the application to fetch configuration from the Config Server
+
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
+
+  microservice-eureka-config:
+    extends:
+      service: microservice-configserver-config
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/

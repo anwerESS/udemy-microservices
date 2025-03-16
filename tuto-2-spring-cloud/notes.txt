@@ -283,6 +283,10 @@ NOTES:
 				// The response is wrapped in a `ResponseEntity` containing a `CardsDto` object.
 			}
 
+	- eureka self-preservation (https://www.baeldung.com/eureka-self-preservation-renewal)
+
+	- Introduction to GraalVm
+		* https://www.youtube.com/watch?v=SISjh1krECE
 
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.
