@@ -312,6 +312,60 @@ NOTES:
 		* call account service from gatewayserver
 			http://localhost:8072/ACCOUNTS/api/create # ACCOUNTS is uppercase because it is registrer in eureka with ACCOUNTS
 
+		* implementing Custom Routing using Spring Cloud Gateway (GatewayserverApplication.java)
+			    @Bean
+                public RouteLocator eazyBankRouteConfig(RouteLocatorBuilder routeLocatorBuilder) {
+                    return routeLocatorBuilder.routes()
+                        .route(p -> p
+                            .path("/eazybank/accounts/**")
+                            .filters(f -> f.rewritePath(
+                                    "/eazybank/accounts/(?<segment>.*)",
+                                            "/${segment}"
+                                    )
+            	//                    .addResponseHeader(
+            	//                            "X-Response-Time",
+            	//                            LocalDateTime.now().toString()
+            	//                    )
+                            )
+                            .uri("lb://ACCOUNTS"))
+						...
+                        .build();
+                }
+        * diable disable the Gateway Discovery Locator
+			+   cloud.gateway.discovery.locator:.enabled: true
+				{
+					"predicate": "Paths: [/eazybank/accounts/**], match trailing slash: true",
+					"route_id": "3572e7db-48f0-44a1-9426-874d3ce558f8",
+					"filters": [
+						"[[RewritePath /eazybank/accounts/(?<segment>.*) = '/${segment}'], order = 0]"
+					],
+					"uri": "lb://ACCOUNTS",
+					"order": 0
+				},
+				{
+					"predicate": "Paths: [/accounts/**], match trailing slash: true",
+					"metadata": {
+						"management.port": "8080"
+					},
+					"route_id": "ReactiveCompositeDiscoveryClient_ACCOUNTS",
+					"filters": [
+						"[[RewritePath /accounts/?(?<remaining>.*) = '/${remaining}'], order = 1]"
+					],
+					"uri": "lb://ACCOUNTS",
+					"order": 0
+                },
+			+   cloud.gateway.discovery.locator:.enabled: false
+					{
+						"predicate": "Paths: [/eazybank/accounts/**], match trailing slash: true",
+						"route_id": "3572e7db-48f0-44a1-9426-874d3ce558f8",
+						"filters": [
+							"[[RewritePath /eazybank/accounts/(?<segment>.*) = '/${segment}'], order = 0]"
+						],
+						"uri": "lb://ACCOUNTS",
+						"order": 0
+					},
+		* add addResponseHeader filter (with the addResponseHeader() # see the code above)
+
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.
 	@EnableFeignClients // enable Feign Clients

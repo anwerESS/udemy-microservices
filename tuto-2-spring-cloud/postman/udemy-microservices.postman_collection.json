@@ -799,6 +799,150 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "gatewayserver",
+			"item": [
+				{
+					"name": "gatewayserver_1",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ1YkQ5OHloaFJiZmtTMmZzT1hRdWxVUUxYMHc1eUtudWNWZFo1VjY2d2VFIn0.eyJleHAiOjE2ODgzMDQyODAsImlhdCI6MTY4ODMwNDIyMCwiYXV0aF90aW1lIjoxNjg4MzAyODM3LCJqdGkiOiI5MDNlMjIxMy0yMjA0LTQwNTUtODE5ZS0wZmQxNWMzM2IwZDMiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjcwODAvcmVhbG1zL21hc3RlciIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiI4Y2U2YjVlNy0xYzlmLTRkYzEtYTVhNy0xODA0ZTNlZTc4MWEiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJlYXp5YmFuay1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6IjRiY2I0ZTg3LTRlYTUtNGZiMS05ODI0LThiMzYxZTAxZWFiNSIsImFjciI6IjAiLCJhbGxvd2VkLW9yaWdpbnMiOlsiKiJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiTE9BTlMiLCJkZWZhdWx0LXJvbGVzLW1hc3RlciIsIkFDQ09VTlRTIiwib2ZmbGluZV9hY2Nlc3MiLCJ1bWFfYXV0aG9yaXphdGlvbiIsIkNBUkRTIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJvcGVuaWQgZW1haWwgcHJvZmlsZSIsInNpZCI6IjRiY2I0ZTg3LTRlYTUtNGZiMS05ODI0LThiMzYxZTAxZWFiNSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYW1lIjoiU2FhbnZpIFJlZGR5IiwicHJlZmVycmVkX3VzZXJuYW1lIjoic2FhbnZpIiwiZ2l2ZW5fbmFtZSI6IlNhYW52aSIsImZhbWlseV9uYW1lIjoiUmVkZHkiLCJlbWFpbCI6InNhYW52aUBnbWFpbC5jb20ifQ.JWa4_j4CkMfzOOWQ9Zfmf983wwVR1-giJ8b3bEH2prfCUY2RSzlgwUiEAtbjcsAouhixlfddYk6ZOT1z-kbJOKCRdsvEGSLuJiZeZmG2kdy4vf61alkRYnTpAW9FBThfm9egV6zGUVdK5JEdXLIPTsKKNnMjZ7cDPPZKlbkfTbgL9ePfMZq2NTF_C6piNUUxDmEhmDZ3z68UdrPmentaktO8vV2GJiGE4dAa87_Zw8UzvDmU2voyx5JlE0MBFhLWn-11s9HVxXt9bo0DX54LtjiS3YsFvD-SwIuPLlGndpX4HogMtKufv9n9Z_SD2-FzjouOBhPJ1nsVj_1vaSc2ug",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Madan Reddy\",\n    \"email\": \"tutor@eazybytes.com\",\n    \"mobileNumber\": \"4354437687\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8072/ACCOUNTS/api/create",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8072",
+							"path": [
+								"ACCOUNTS",
+								"api",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "gatewayserver_2",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8072/ACCOUNTS/api/fetch?mobileNumber=4354437687",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8072",
+							"path": [
+								"ACCOUNTS",
+								"api",
+								"fetch"
+							],
+							"query": [
+								{
+									"key": "mobileNumber",
+									"value": "4354437687"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "gatewayserver_3",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ1YkQ5OHloaFJiZmtTMmZzT1hRdWxVUUxYMHc1eUtudWNWZFo1VjY2d2VFIn0.eyJleHAiOjE2ODgzMDQyODAsImlhdCI6MTY4ODMwNDIyMCwiYXV0aF90aW1lIjoxNjg4MzAyODM3LCJqdGkiOiI5MDNlMjIxMy0yMjA0LTQwNTUtODE5ZS0wZmQxNWMzM2IwZDMiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjcwODAvcmVhbG1zL21hc3RlciIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiI4Y2U2YjVlNy0xYzlmLTRkYzEtYTVhNy0xODA0ZTNlZTc4MWEiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJlYXp5YmFuay1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6IjRiY2I0ZTg3LTRlYTUtNGZiMS05ODI0LThiMzYxZTAxZWFiNSIsImFjciI6IjAiLCJhbGxvd2VkLW9yaWdpbnMiOlsiKiJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiTE9BTlMiLCJkZWZhdWx0LXJvbGVzLW1hc3RlciIsIkFDQ09VTlRTIiwib2ZmbGluZV9hY2Nlc3MiLCJ1bWFfYXV0aG9yaXphdGlvbiIsIkNBUkRTIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJvcGVuaWQgZW1haWwgcHJvZmlsZSIsInNpZCI6IjRiY2I0ZTg3LTRlYTUtNGZiMS05ODI0LThiMzYxZTAxZWFiNSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYW1lIjoiU2FhbnZpIFJlZGR5IiwicHJlZmVycmVkX3VzZXJuYW1lIjoic2FhbnZpIiwiZ2l2ZW5fbmFtZSI6IlNhYW52aSIsImZhbWlseV9uYW1lIjoiUmVkZHkiLCJlbWFpbCI6InNhYW52aUBnbWFpbC5jb20ifQ.JWa4_j4CkMfzOOWQ9Zfmf983wwVR1-giJ8b3bEH2prfCUY2RSzlgwUiEAtbjcsAouhixlfddYk6ZOT1z-kbJOKCRdsvEGSLuJiZeZmG2kdy4vf61alkRYnTpAW9FBThfm9egV6zGUVdK5JEdXLIPTsKKNnMjZ7cDPPZKlbkfTbgL9ePfMZq2NTF_C6piNUUxDmEhmDZ3z68UdrPmentaktO8vV2GJiGE4dAa87_Zw8UzvDmU2voyx5JlE0MBFhLWn-11s9HVxXt9bo0DX54LtjiS3YsFvD-SwIuPLlGndpX4HogMtKufv9n9Z_SD2-FzjouOBhPJ1nsVj_1vaSc2ug",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Madan Reddy\",\n    \"email\": \"tutor@eazybytes.com\",\n    \"mobileNumber\": \"4354437687\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8072/eazybank/accounts/api/create",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8072",
+							"path": [
+								"eazybank",
+								"accounts",
+								"api",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "gatewayserver_4",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8072/eazybank/accounts/api/fetch?mobileNumber=4354437687",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8072",
+							"path": [
+								"eazybank",
+								"accounts",
+								"api",
+								"fetch"
+							],
+							"query": [
+								{
+									"key": "mobileNumber",
+									"value": "4354437687"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [
