@@ -288,6 +288,30 @@ NOTES:
 	- Introduction to GraalVm
 		* https://www.youtube.com/watch?v=SISjh1krECE
 
+	- setup gateway server
+		* add in pom.xml
+			<dependency>
+			  <groupId>org.springframework.cloud</groupId>
+			  <artifactId>spring-cloud-starter-gateway</artifactId>
+			</dependency>
+		* http://localhost:8072/actuator/gateway/routes # show info about routes(RouteId, URI, Predicates, Filters, Order...etc)
+			...
+			{
+				"predicate": "Paths: [/accounts/**], match trailing slash: true",
+				"metadata": {
+					"management.port": "8080"
+				},
+				"route_id": "ReactiveCompositeDiscoveryClient_ACCOUNTS",
+				"filters": [
+					"[[RewritePath /accounts/?(?<remaining>.*) = '/${remaining}'], order = 1]"
+				],
+				"uri": "lb://ACCOUNTS",
+				"order": 0
+            }
+			...
+		* call account service from gatewayserver
+			http://localhost:8072/ACCOUNTS/api/create # ACCOUNTS is uppercase because it is registrer in eureka with ACCOUNTS
+
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.
 	@EnableFeignClients // enable Feign Clients

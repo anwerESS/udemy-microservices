@@ -1,0 +1,64 @@
+########## Spring Application:
+#
+#  Sets the application name to gatewayserver.
+#
+#  Configures the application to fetch configuration from the Config Server at http://localhost:8071/. The optional flag ensures the application starts even if the Config Server is unavailable.
+spring:
+  application:
+    name: "gatewayserver"  # Sets the name of the Spring Boot application to "gatewayserver".
+    # This is used for identification in logs, service discovery, and configuration management.
+
+  config:
+    import: "optional:configserver:http://localhost:8071/"  # Configures the application to fetch configuration from the Config Server.
+      # - "optional": The application will start even if the Config Server is unavailable.
+    # - "configserver:http://localhost:8071/": The URL of the Config Server.
+  ######## Spring Cloud Gateway:
+  #
+  #  Disables the Gateway Discovery Locator (automatic routing based on service discovery).
+  #
+  #  Ensures service IDs are lowercase if the Discovery Locator is enabled.
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true  # enable or disable the Gateway Discovery Locator, which automatically routes requests based on service discovery.
+######## Management Endpoints:
+#
+#  Exposes all Actuator endpoints over HTTP.
+#
+#  Allows unrestricted access to the /actuator/gateway endpoint.
+#
+#  Enables environment information in the /actuator/info endpoint.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"  # Exposes all Actuator endpoints over HTTP. Use with caution in production.
+        # This allows access to endpoints like `/actuator/health`, `/actuator/info`, `/actuator/gateway`, etc.
+
+  endpoint:
+    gateway:
+      access: unrestricted  # Allows unrestricted access to the `/actuator/gateway` endpoint.
+      # This endpoint provides information about the Gateway's routes and filters.
+
+  info:
+    env:
+      enabled: true  # Enables the inclusion of environment information in the `/actuator/info` endpoint.
+        # This includes details about the application's environment (e.g., system properties, environment variables).
+######## Application Information:
+#
+#  Provides metadata about the application (name, description, version) for the /actuator/info endpoint.
+info:
+  app:
+    name: "gatewayserver"  # Sets the application name for the `/actuator/info` endpoint.
+    description: "Eazy Bank Gateway Server Application"  # Provides a description of the application.
+    version: "1.0.0"  # Specifies the version of the application.
+######## Logging:
+#
+#  Enables DEBUG-level logging for the org.example.gatewayserver package, which is useful for debugging the Gateway Server application.
+logging:
+  level:
+    org:
+      example:
+        gatewayserver: DEBUG  # Sets the logging level for the `org.example.gatewayserver` package to DEBUG.
+        # This enables detailed logging for the Gateway Server application, which is useful for debugging.

@@ -88,7 +88,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Madan Reddy\",\n    \"email\": \"tutor@eazybytes9\",\n    \"mobileNumber\": \"4364437687\",\n    \"accountDetails\": {\n        \"accountNumber\": 1811739552,\n        \"accountType\": \"Savings9\",\n        \"branchAddress\": \"1234 Main Street, New York9\"\n    }\n}",
+							"raw": "{\n    \"name\": \"Madan Reddy\",\n    \"email\": \"tutor@eazybytes9\",\n    \"mobileNumber\": \"4364437687\",\n    \"accountDetails\": {\n        \"accountNumber\": 1218207883,\n        \"accountType\": \"Savings9\",\n        \"branchAddress\": \"1234 Main Street, New York9\"\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -212,7 +212,51 @@
 					"name": "ShutDown",
 					"request": {
 						"method": "POST",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/actuator/shutdown",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"actuator",
+								"shutdown"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FetchCustomerDetails",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "eazybank-correlation-id",
+								"value": "43gtrt-trtrrtgf",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/fetchCustomerDetails?mobileNumber=4364437687",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"fetchCustomerDetails"
+							],
+							"query": [
+								{
+									"key": "mobileNumber",
+									"value": "4364437687"
+								}
+							]
+						}
 					},
 					"response": []
 				}
@@ -227,7 +271,7 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8090/api/create?mobileNumber=4354437687",
+							"raw": "http://localhost:8090/api/create?mobileNumber=4364437687",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -240,7 +284,7 @@
 							"query": [
 								{
 									"key": "mobileNumber",
-									"value": "4354437687"
+									"value": "4364437687"
 								}
 							]
 						}
@@ -253,7 +297,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8090/api/fetch?mobileNumber=4354437687",
+							"raw": "http://localhost:8090/api/fetch?mobileNumber=4364437687",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -266,7 +310,7 @@
 							"query": [
 								{
 									"key": "mobileNumber",
-									"value": "4354437687"
+									"value": "4364437687"
 								}
 							]
 						}
@@ -431,7 +475,7 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:9000/api/create?mobileNumber=4354437687",
+							"raw": "http://localhost:9000/api/create?mobileNumber=4364437687",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -444,7 +488,7 @@
 							"query": [
 								{
 									"key": "mobileNumber",
-									"value": "4354437687"
+									"value": "4364437687"
 								}
 							]
 						}
@@ -457,7 +501,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:9000/api/fetch?mobileNumber=4354437687",
+							"raw": "http://localhost:9000/api/fetch?mobileNumber=4364437687",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -470,7 +514,7 @@
 							"query": [
 								{
 									"key": "mobileNumber",
-									"value": "4354437687"
+									"value": "4364437687"
 								}
 							]
 						}
@@ -596,7 +640,19 @@
 					"name": "ShutDown",
 					"request": {
 						"method": "POST",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9000/actuator/shutdown",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9000",
+							"path": [
+								"actuator",
+								"shutdown"
+							]
+						}
 					},
 					"response": []
 				}
