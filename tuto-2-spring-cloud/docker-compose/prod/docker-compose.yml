@@ -46,7 +46,7 @@ services:
       service: microservice-db-config
 
   eurekaserver:
-    image: "anweress/eurekaserver:s8"
+    image: "anweress/eurekaserver:s9"
     container_name: eurekaserver-ms
     ports:
       - "8070:8070"
@@ -66,7 +66,7 @@ services:
       SPRING_APPLICATION_NAME: "eurekaserver"
 
   configserver:
-    image: "anweress/configserver:s8"  # Uses a custom Docker image for the Config Server.
+    image: "anweress/configserver:s9"  # Uses a custom Docker image for the Config Server.
     container_name: configserver-ms  # Sets the container name to "configserver-ms".
     ports:
       - "8071:8071"  # Exposes port 8071 for the Config Server.
@@ -84,7 +84,7 @@ services:
       service: microservice-base-config  # Uses the `microservice-base-config` configuration.
 
   accounts:
-    image: "anweress/accounts:s8"  # Uses a custom Docker image for the Accounts microservice.
+    image: "anweress/accounts:s9"  # Uses a custom Docker image for the Accounts microservice.
     container_name: accounts-ms  # Sets the container name to "accounts-ms".
     ports:
       - "8080:8080"  # Exposes port 8080 for the Accounts microservice.
@@ -93,6 +93,12 @@ services:
         condition: service_healthy  # Ensures the Config Server is healthy before starting.
       eurekaserver:
         condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     environment:
       SPRING_APPLICATION_NAME: "accounts"  # Sets the Spring application name to "accounts".
       SPRING_DATASOURCE_URL: "jdbc:mysql://accountsdb:3306/accountsdb"
@@ -101,7 +107,7 @@ services:
       service: microservice-eureka-config  # Uses the `microservice-eureka-config` configuration.
 
   loans:
-    image: "anweress/loans:s8"  # Uses a custom Docker image for the Loans microservice.
+    image: "anweress/loans:s9"  # Uses a custom Docker image for the Loans microservice.
     container_name: loans-ms  # Sets the container name to "loans-ms".
     ports:
       - "8090:8090"  # Exposes port 8090 for the Loans microservice.
@@ -110,6 +116,12 @@ services:
         condition: service_healthy
       configserver:
         condition: service_healthy  # Ensures the Config Server is healthy before starting.
+    healthcheck:
+      test: "curl --fail --silent localhost:8090/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     environment:
       SPRING_APPLICATION_NAME: "loans"  # Sets the Spring application name to "loans".
       SPRING_DATASOURCE_URL: "jdbc:mysql://loansdb:3306/loansdb" # must be 3306 and not 3307 because database start inside the docker network
@@ -118,7 +130,7 @@ services:
       service: microservice-eureka-config  # Uses the `microservice-eureka-config` configuration.
 
   cards:
-    image: "anweress/cards:s8"  # Uses a custom Docker image for the Cards microservice.
+    image: "anweress/cards:s9"  # Uses a custom Docker image for the Cards microservice.
     container_name: cards-ms  # Sets the container name to "cards-ms".
     ports:
       - "9000:9000"  # Exposes port 9000 for the Cards microservice.
@@ -127,12 +139,36 @@ services:
         condition: service_healthy
       configserver:
         condition: service_healthy  # Ensures the Config Server is healthy before starting.
+    healthcheck:
+      test: "curl --fail --silent localhost:9000/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     environment:
       SPRING_APPLICATION_NAME: "cards"  # Sets the Spring application name to "cards".
       SPRING_DATASOURCE_URL: "jdbc:mysql://cardsdb:3306/cardsdb" #  must be 3306 and not 3307 because database start inside the docker network
     extends:
       file: common-config.yml  # Extends configuration from the `common-config.yml` file.
       service: microservice-eureka-config  # Uses the `microservice-eureka-config` configuration.
+
+  gatewayserver:
+    image: "anweress/gatewayserver:s9"
+    container_name: gatewayserver-ms
+    ports:
+      - "8072:8072"
+    depends_on:
+      accounts:
+        condition: service_healthy
+      loans:
+        condition: service_healthy
+      cards:
+        condition: service_healthy
+    environment:
+      SPRING_APPLICATION_NAME: "gatewayserver"
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
 
 networks:
   anweress:

@@ -38,11 +38,19 @@ management:
     web:
       exposure:
         include: "*"
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
   endpoint:
     shutdown:
       access: unrestricted  # Allows unrestricted access to the `/actuator/shutdown` endpoint.
       # This endpoint can be used to gracefully shut down the application.
       # Be cautious with this setting, as it can be a security risk in pro
+    health:
+      probes:
+        enabled: true  #
   info:
     env:
       enabled: true  # Enables the inclusion of environment information in the `/actuator/info` endpoint.
