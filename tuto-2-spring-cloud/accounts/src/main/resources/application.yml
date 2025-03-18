@@ -72,3 +72,13 @@ info:
     name: "accounts"  # Specifies the name of the application. This is typically used for identification and logging purposes.
     description: "Eazy Bank Accounts Application"  # Provides a brief description of the application. This can be useful for documentation or monitoring tools.
     version: "1.0.0"  # Specifies the version of the application. This is useful for tracking releases and ensuring compatibility.
+
+######## Logging:
+#
+#  Enables DEBUG-level logging for the org.example.accounts package, which is useful for debugging the Gateway Server application.
+logging:
+  level:
+    org:
+      example:
+        accounts: DEBUG  # Sets the logging level for the `org.example.accounts` package to DEBUG.
+        # This enables detailed logging for the Gateway Server application, which is useful for debugging.

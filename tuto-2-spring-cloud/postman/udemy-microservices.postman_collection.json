@@ -941,6 +941,218 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "eazybank/accounts/api/create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Madan Reddy\",\n    \"email\": \"tutor@eazybytes\",\n    \"mobileNumber\": \"4354437687\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8072/eazybank/accounts/api/create",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8072",
+							"path": [
+								"eazybank",
+								"accounts",
+								"api",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "eazybank/cards/api/create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8072/eazybank/cards/api/create?mobileNumber=4354437687",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8072",
+							"path": [
+								"eazybank",
+								"cards",
+								"api",
+								"create"
+							],
+							"query": [
+								{
+									"key": "mobileNumber",
+									"value": "4354437687"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "eazybank/loans/api/create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8072/eazybank/loans/api/create?mobileNumber=4354437687",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8072",
+							"path": [
+								"eazybank",
+								"loans",
+								"api",
+								"create"
+							],
+							"query": [
+								{
+									"key": "mobileNumber",
+									"value": "4354437687"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FetchCustomerDetails",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8072/eazybank/accounts/api/fetchCustomerDetails?mobileNumber=4354437687",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8072",
+							"path": [
+								"eazybank",
+								"accounts",
+								"api",
+								"fetchCustomerDetails"
+							],
+							"query": [
+								{
+									"key": "mobileNumber",
+									"value": "4354437687"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "eazybank/accounts/api/contact-info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8072/eazybank/accounts/api/contact-info",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8072",
+							"path": [
+								"eazybank",
+								"accounts",
+								"api",
+								"contact-info"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "eazybank/loans/api/contact-info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8072/eazybank/loans/api/contact-info",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8072",
+							"path": [
+								"eazybank",
+								"loans",
+								"api",
+								"contact-info"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "eazybank/accounts/api/build-info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8072/eazybank/accounts/api/build-info",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8072",
+							"path": [
+								"eazybank",
+								"accounts",
+								"api",
+								"build-info"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "eazybank/accounts/api/java-version",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8072/eazybank/accounts/api/java-version",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8072",
+							"path": [
+								"eazybank",
+								"accounts",
+								"api",
+								"java-version"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}

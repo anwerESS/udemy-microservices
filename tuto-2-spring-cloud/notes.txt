@@ -366,6 +366,21 @@ NOTES:
 					},
 		* add addResponseHeader filter (with the addResponseHeader() # see the code above)
 
+		* Implementing Cross cutting concerns Tracing & Logging using Gateway (Correlation ID)
+			+ Request Tracing:
+				When a request enters the system, the RequestTraceFilter checks if it already has a Correlation ID in the headers.
+				If not, it generates a new Correlation ID (using a UUID) and adds it to the request headers.
+				This ensures that every request has a unique identifier.
+			Response Tracing:
+				After the request is processed, the ResponseTraceFilter retrieves the Correlation ID from the request headers.
+				It adds the Correlation ID to the response headers before sending the response back to the client.
+				This ensures that the client (or downstream services) can also trace the request.
+			Logging:
+				Both filters log the Correlation ID for debugging and monitoring purposes.
+				For example:
+					RequestTraceFilter logs when a Correlation ID is found or generated.
+					ResponseTraceFilter logs when the Correlation ID is added to the response headers.
+
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.
 	@EnableFeignClients // enable Feign Clients
