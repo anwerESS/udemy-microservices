@@ -40,6 +40,10 @@ public class GatewayserverApplication {
                                 "X-Response-Time",
                                 LocalDateTime.now().toString()
                         )
+                        .circuitBreaker(config -> config
+                                .setName("accountsCircuitBreaker")  // Sets a unique name for the Circuit Breaker
+                                .setFallbackUri("forward:/contactSupport")  // Defines the fallback URI to call when the Circuit Breaker is open or the service fails
+                        )
                 )
                 .uri("lb://ACCOUNTS"))
             .route(p -> p

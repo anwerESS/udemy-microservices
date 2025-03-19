@@ -381,6 +381,106 @@ NOTES:
 					RequestTraceFilter logs when a Correlation ID is found or generated.
 					ResponseTraceFilter logs when the Correlation ID is added to the response headers.
 
+	- Implementing Circuit Breaker pattern in Gateway
+		* step to build a circuit breaker patern
+			1. add maven dependecy
+				<dependency>
+					<groupId>org.springframework.cloud</groupId>
+					<artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
+				</dependency>
+			2. add circuit breaker filter
+				@Bean
+				public RouteLocator eazyBankRouteConfig(RouteLocatorBuilder routeLocatorBuilder) {
+					return routeLocatorBuilder.routes()
+						.route(p -> p
+							.path("/eazybank/accounts/**")
+							.filters(f -> f.rewritePath(
+									"/eazybank/accounts/(?<segment>.*)",
+											"/${segment}"
+									)
+									.addResponseHeader( // Adds a custom response header
+											"X-Response-Time",
+											LocalDateTime.now().toString()
+									)
+									/// BEGIN CIRCUIT BREAKER
+									.circuitBreaker(config -> config
+											.setName("accountsCircuitBreaker")
+											// create fallback controller to return a msg instead of an exception
+											.setFallbackUri("forward:/contactSupport")
+									)
+									// END CIRCUIT BREAKER
+							)
+				...
+			3. add properties in application.yml
+				resilience4j.circuitbreaker:
+				  configs:
+					default:
+					  slidingWindowSize: 10
+					  permittedNumberOfCallsInHalfOpenState: 2
+					  failureRateThreshold: 50
+					  waitDurationInOpenState: 10000
+					  slowCallDurationThreshold: 5000
+			4. add fallback controller
+				@RestController
+				public class FallbackController {
+
+					@RequestMapping("/contactSupport")
+					public Mono<String> contactSupport() {
+						return Mono.just("An error occurred. Please try after some time or contact support team!!!");
+					}
+
+				}
+			
+	  * test circuit breaker
+		http://localhost:8072/actuator/circuitbreakers
+		  {
+			"circuitBreakers": {
+			  "accountsCircuitBreaker": {
+				"failureRate": "-1.0%",
+				"slowCallRate": "-1.0%",
+				"failureRateThreshold": "50.0%",
+				"slowCallRateThreshold": "100.0%",
+				"bufferedCalls": 3,
+				"failedCalls": 0,
+				"slowCalls": 0,
+				"slowFailedCalls": 0,
+				"notPermittedCalls": 0,
+				"state": "CLOSED"
+			  }
+			}
+		  }
+
+		http://localhost:8072/actuator/circuitbreakerevents
+		  ...
+			{
+			  "circuitBreakerName": "accountsCircuitBreaker",
+			  "type": "ERROR",
+			  "creationTime": "2025-03-19T06:10:13.812244284+01:00[Europe/Paris]",
+			  "errorMessage": "java.util.concurrent.TimeoutException: Did not observe any item or terminal signal within 1000ms in 'circuitBreaker' (and no fallback has been configured)",
+			  "durationInMs": 1000,
+			  "stateTransition": null
+			},
+			{
+			  "circuitBreakerName": "accountsCircuitBreaker",
+			  "type": "SUCCESS",
+			  "creationTime": "2025-03-19T06:10:29.043795988+01:00[Europe/Paris]",
+			  "errorMessage": null,
+			  "durationInMs": 5,
+			  "stateTransition": null
+			},
+			{
+			  "circuitBreakerName": "accountsCircuitBreaker",
+			  "type": "STATE_TRANSITION",
+			  "creationTime": "2025-03-19T06:10:29.043857455+01:00[Europe/Paris]",
+			  "errorMessage": null,
+			  "durationInMs": null,
+			  "stateTransition": "HALF_OPEN_TO_OPEN"
+			},
+		  ...
+
+
+
+
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.
 	@EnableFeignClients // enable Feign Clients
