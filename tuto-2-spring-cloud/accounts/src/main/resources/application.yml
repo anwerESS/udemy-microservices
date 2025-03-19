@@ -33,7 +33,10 @@ spring:
 #    port: 5672
 #    username: "guest"
 #    password: "guest"
-
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true # Enables the Circuit Breaker functionality for OpenFeign clients (wrap all Feign client calls with a Circuit Breaker)
 
 management:
   endpoints:
@@ -90,3 +93,20 @@ logging:
       example:
         accounts: DEBUG  # Sets the logging level for the `org.example.accounts` package to DEBUG.
         # This enables detailed logging for the Gateway Server application, which is useful for debugging.
+
+
+########## Resilience4j Circuit Breaker Configuration
+#  - The circuit breaker monitors the last 10 calls (slidingWindowSize).
+#  - If more than 50% of these calls fail (failureRateThreshold), the circuit breaker trips and enters the open state.
+#  - In the open state, all calls are blocked for 10000 milliseconds (waitDurationInOpenState).
+#  - After 10000 milliseconds, the circuit breaker transitions to the half-open state and allows 2 calls (permittedNumberOfCallsInHalfOpenState) to test if the service has recovered.
+#   * If these calls succeed, the circuit breaker transitions back to the closed state.
+#   * If they fail, it goes back to the open state
+resilience4j:                # Root configuration for Resilience4j
+  circuitbreaker:            # Configuration for the Circuit Breaker module
+    configs:                 # Defines multiple circuit breaker configurations
+      default:               # The name of this configuration (default configuration)
+        slidingWindowSize: 10 # Number of calls to track in the sliding window (last 10 calls)
+        permittedNumberOfCallsInHalfOpenState: 2 # Number of calls allowed in half-open state
+        failureRateThreshold: 50 # Failure rate threshold (in %) to trip the circuit breaker
+        waitDurationInOpenState: 10000 # Time (in ms) to wait in open state before testing recovery

@@ -478,8 +478,86 @@ NOTES:
 			},
 		  ...
 
+	- Implementing Circuit Breaker pattern with feign client
+		* step to build a circuit breaker patern using spring boot service
+			+ add maven dependecy (accounts)
+				<dependency>
+				  <groupId>org.springframework.cloud</groupId>
+				  <artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
+				</dependency>
+			+ add properties in application.yml
+				- spring:
+				  cloud:
+					openfeign:
+					  circuitbreaker:
+						enabled: true
+				- resilience4j
+                    circuitbreaker
+                      configs
+                        default
+                          slidingWindowSize 10
+                          permittedNumberOfCallsInHalfOpenState 2
+                          failureRateThreshold 50
+                          waitDurationInOpenState 10000
+			+ create fallback classe that implements the feign client interface
+				@Component
+                public class CardsFallback implements CardsFeignClient{
+                    @Override
+                    public ResponseEntity<CardsDto> fetchCardDetails(String correlationId, String mobileNumber) {
+                        return null;
+                    }
+                }
 
-
+			+ add the fallback class to the feign client interfaces
+				@FeignClient(name = "cards", fallback = CardsFallback.class)
+		* test circuit breaker (http://localhost:8072/eazybank/accounts/api/fetchCustomerDetails?mobileNumber=4354437687)
+			+ before stopping cards service
+				{
+					"name": "Madan Reddy",
+					"email": "tutor@eazybytes.com",
+					"mobileNumber": "4354437687",
+					"accountsDto": {
+						"accountNumber": 1074111810,
+						"accountType": "Savings",
+						"branchAddress": "123 Main Street, New York"
+					},
+					"loansDto": {
+						"mobileNumber": "4354437687",
+						"loanNumber": "100828528752",
+						"loanType": "Home Loan",
+						"totalLoan": 100000,
+						"amountPaid": 0,
+						"outstandingAmount": 100000
+					},
+					"cardsDto": {
+						"mobileNumber": "4354437687",
+						"cardNumber": "100523641420",
+						"cardType": "Credit Card",
+						"totalLimit": 100000,
+						"amountUsed": 0,
+						"availableAmount": 100000
+					}
+				}
+			+ after stopping cards service
+				{
+					"name": "Madan Reddy",
+					"email": "tutor@eazybytes.com",
+					"mobileNumber": "4354437687",
+					"accountsDto": {
+						"accountNumber": 1074111810,
+						"accountType": "Savings",
+						"branchAddress": "123 Main Street, New York"
+					},
+					"loansDto": {
+						"mobileNumber": "4354437687",
+						"loanNumber": "100828528752",
+						"loanType": "Home Loan",
+						"totalLoan": 100000,
+						"amountPaid": 0,
+						"outstandingAmount": 100000
+					},
+					"cardsDto": null
+				}
 
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.

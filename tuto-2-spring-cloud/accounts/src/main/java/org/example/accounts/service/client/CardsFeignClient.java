@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.
+@FeignClient(name = "cards", fallback = CardsFallback.class) // Declares this interface as a Feign client for the "cards" service.
 // The "cards" service is the name of the remote service registered in the service registry (e.g., Eureka).
 public interface CardsFeignClient {
 
