@@ -598,6 +598,44 @@ NOTES:
 			+ add log in loansController(logger.debug("Invoked contact-info API");)
 			+ enable a breakpoint in getContactInfo() and call (fetchCustomerDetails)
 
+	- Implementing Retry pattern inside normal springboot service (account)
+		+ add retry pattern annotation and fullback method
+			@Retry(name = "getBuildInfo",fallbackMethod = "getBuildInfoFallback")
+			@GetMapping("/build-info")
+			public ResponseEntity<String> getBuildInfo() {
+				...
+			}
+			// fallback method should have the same signature as the original method and accept a Throwable parameter
+			public ResponseEntity<String> getBuildInfoFallback(Throwable throwable) {
+
+			}
+		+ add properties in application.yml
+			resilience4j:
+			  retry:
+				configs:
+				  default:
+					maxAttempts: 3
+					waitDuration: 500
+					enableExponentialBackoff: true
+					exponentialBackoffMultiplier: 2
+					ignoreExceptions:
+					  - java.lang.NullPointerException
+					retryExceptions:
+					  - java.util.concurrent.TimeoutException
+		+ add circuit breaker timeout (optional) in gatewatserverApplication.java
+			@Bean  // Marks this method as a Spring bean, making it part of the Spring context
+			public Customizer<ReactiveResilience4JCircuitBreakerFactory> defaultCustomizer() {
+        		return factory -> factory.configureDefault(id -> new Resilience4JConfigBuilder(id)
+                .circuitBreakerConfig(CircuitBreakerConfig.ofDefaults())  // Uses default Circuit Breaker configuration
+                .timeLimiterConfig(TimeLimiterConfig.custom()  // Configures the TimeLimiter
+                        .timeoutDuration(Duration.ofSeconds(4))  // Sets a timeout of 4 seconds (with this, circuit breaker will wait for 4 seconds)
+                        .build())
+                .build());
+   			 }
+
+		==> the advantage of implementing retry patern inside the microservices is implementing a fallback mechanism
+
+
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.
 	@EnableFeignClients // enable Feign Clients

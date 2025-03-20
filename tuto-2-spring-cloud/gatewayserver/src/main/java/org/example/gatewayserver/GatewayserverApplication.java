@@ -1,7 +1,12 @@
 package org.example.gatewayserver;
 
+import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
+import io.github.resilience4j.timelimiter.TimeLimiterConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.circuitbreaker.resilience4j.ReactiveResilience4JCircuitBreakerFactory;
+import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JConfigBuilder;
+import org.springframework.cloud.client.circuitbreaker.Customizer;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
@@ -84,6 +89,17 @@ public class GatewayserverApplication {
                 )
                 .uri("lb://CARDS"))
             .build();
+    }
+
+    @Bean  // Marks this method as a Spring bean, making it part of the Spring context
+    public Customizer<ReactiveResilience4JCircuitBreakerFactory> defaultCustomizer() {
+        // Returns a Customizer that configures the default settings for all circuit breakers
+        return factory -> factory.configureDefault(id -> new Resilience4JConfigBuilder(id)
+                .circuitBreakerConfig(CircuitBreakerConfig.ofDefaults())  // Uses default Circuit Breaker configuration
+                .timeLimiterConfig(TimeLimiterConfig.custom()  // Configures the TimeLimiter
+                        .timeoutDuration(Duration.ofSeconds(4))  // Sets a timeout of 4 seconds (with this, circuit breaker will wait for 4 seconds)
+                        .build())
+                .build());
     }
 
 }

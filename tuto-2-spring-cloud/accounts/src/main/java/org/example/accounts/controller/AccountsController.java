@@ -1,5 +1,6 @@
 package org.example.accounts.controller;
 
+import io.github.resilience4j.retry.annotation.Retry;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,6 +17,8 @@ import org.example.accounts.dto.ErrorResponseDto;
 import org.example.accounts.dto.ResponseDto;
 import org.example.accounts.service.IAccountsService;
 //import org.hibernate.cfg.Environment; (wrong import)
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -42,6 +45,8 @@ import org.springframework.web.bind.annotation.*;
 //@AllArgsConstructor
 @Validated
 public class AccountsController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AccountsController.class);
 
     @Value("${build.version}")
     private String buildVersion;
@@ -210,11 +215,25 @@ public class AccountsController {
             )
     }
     )
-    @GetMapping("/build-info")
+    @Retry(name = "getBuildInfo",  // Enables retry mechanism for this method using the "getBuildInfo" configuration (usefull when creating multiple instances  defined in application.yml (https://resilience4j.readme.io/docs/getting-started-3))
+            fallbackMethod = "getBuildInfoFallback"  // Specifies the fallback method to call if all retries fail
+    )
+    @GetMapping("/build-info")  // Maps HTTP GET requests to this method at the "/build-info" endpoint
     public ResponseEntity<String> getBuildInfo() {
+        // Returns a successful HTTP response with the build version
         return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(buildVersion);
+                .status(HttpStatus.OK)  // Sets the HTTP status code to 200 (OK)
+                .body(buildVersion);    // Includes the build version in the response body
+    }
+
+    // The fallback method should have the same signature as the original method and accept a Throwable parameter
+    public ResponseEntity<String> getBuildInfoFallback(Throwable throwable) {
+        // Logs a debug message indicating that the fallback method was invoked
+        logger.debug("getBuildInfoFallback() method Invoked");
+        // Returns a fallback HTTP response with a default build version
+        return ResponseEntity
+                .status(HttpStatus.OK)  // Sets the HTTP status code to 200 (OK)
+                .body("0.9");          // Includes a default build version in the response body
     }
 
     /// ======================= getJavaVersion =======================

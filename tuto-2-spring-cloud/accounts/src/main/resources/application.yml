@@ -110,3 +110,15 @@ resilience4j:                # Root configuration for Resilience4j
         permittedNumberOfCallsInHalfOpenState: 2 # Number of calls allowed in half-open state
         failureRateThreshold: 50 # Failure rate threshold (in %) to trip the circuit breaker
         waitDurationInOpenState: 10000 # Time (in ms) to wait in open state before testing recovery
+
+  retry:
+    configs:
+      default:
+        maxAttempts: 3  # Maximum number of retry attempts (including the initial call).
+        waitDuration: 500  # Initial wait duration (in milliseconds) between retries.
+        enableExponentialBackoff: true  # Enables exponential backoff for retries.
+        exponentialBackoffMultiplier: 2  # Multiplier used to calculate the wait duration for exponential backoff.
+#        ignoreExceptions:
+#          - java.lang.NullPointerException  # Exceptions that should NOT trigger a retry.(returns fallback without retrying)
+        retryExceptions: # with the declaring this, we dont have to declare "ignoreExceptions"
+          - java.util.concurrent.TimeoutException  # Exceptions that should trigger a retry.
