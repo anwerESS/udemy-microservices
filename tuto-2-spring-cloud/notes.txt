@@ -567,8 +567,36 @@ NOTES:
 			      	  	httpclient:
 							connect-timeout: 1000
 							response-timeout: 3s
-		
 
+	- Implementing Retry pattern in Gateway
+		* add retry filter (GatewayserverApplication)
+			.route(p -> p
+				.path("/eazybank/loans/**")
+				.filters(f -> f.rewritePath(
+						"/eazybank/loans/(?<segment>.*)",
+								"/${segment}"
+						)
+						.addResponseHeader(
+								"X-Response-Time",
+								LocalDateTime.now().toString()
+						)
+						/// BEGIN RETRY PATERN
+						.retry(retryConfig -> retryConfig
+								.setRetries(3) // Sets the number of retry attempts to 3
+								.setMethods(HttpMethod.GET) // Applies retry only for GET requests
+								.setBackoff(
+										Duration.ofMillis(100), // Initial backoff delay of 100ms
+										Duration.ofMillis(1000), // Max backoff delay of 1000ms
+										2, // Exponential backoff factor of 2
+										true // Enables jitter to randomize the backoff time
+								)
+						)
+						/// END RETRY PATERN
+				)
+				.uri("lb://LOANS"))
+		* test rety mechanism
+			+ add log in loansController(logger.debug("Invoked contact-info API");)
+			+ enable a breakpoint in getContactInfo() and call (fetchCustomerDetails)
 
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.

@@ -5,7 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 @SpringBootApplication
@@ -55,6 +57,17 @@ public class GatewayserverApplication {
                         .addResponseHeader(
                                 "X-Response-Time",
                                 LocalDateTime.now().toString()
+                        )
+                        // Configures a retry mechanism
+                        .retry(retryConfig -> retryConfig
+                                .setRetries(3) // Sets the number of retry attempts to 3
+                                .setMethods(HttpMethod.GET) // Applies retry only for GET requests
+                                .setBackoff(
+                                        Duration.ofMillis(100), // Initial backoff delay of 100ms
+                                        Duration.ofMillis(1000), // Max backoff delay of 1000ms
+                                        2, // Exponential backoff factor of 2
+                                        true // Enables jitter to randomize the backoff time
+                                )
                         )
                 )
                 .uri("lb://LOANS"))
