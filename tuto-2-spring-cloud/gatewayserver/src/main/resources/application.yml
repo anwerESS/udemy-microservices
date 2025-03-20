@@ -23,6 +23,9 @@ spring:
         locator:
           enabled: true  # enable or disable the Gateway Discovery Locator, which automatically routes requests based on service discovery.
           lowerCaseServiceId: true  # Converts service IDs to lowercase when using the Discovery Locator (if enabled).
+      httpclient:
+        connect-timeout: 1000 # maximum time the HTTP client will wait to establish a connection with a remote server.
+        response-timeout: 3s # maximum time the HTTP client will wait for a response after the connection is established.
 ######## Management Endpoints:
 #
 #  Exposes all Actuator endpoints over HTTP.

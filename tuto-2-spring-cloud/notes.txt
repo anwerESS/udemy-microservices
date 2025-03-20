@@ -558,6 +558,17 @@ NOTES:
 					},
 					"cardsDto": null
 				}
+	- configure http timeout (in gatwayserver)
+		* add properties in application.yml
+			- spring:
+			  	cloud:
+			    	gateway:
+			      	  routes:
+			      	  	httpclient:
+							connect-timeout: 1000
+							response-timeout: 3s
+		
+
 
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.
