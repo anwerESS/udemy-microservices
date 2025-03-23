@@ -26,6 +26,13 @@ spring:
       httpclient:
         connect-timeout: 1000 # maximum time the HTTP client will wait to establish a connection with a remote server.
         response-timeout: 3s # maximum time the HTTP client will wait for a response after the connection is established.
+  data:
+    redis:
+      connect-timeout: 2s  # Wait up to 2 seconds to establish a connection
+      host: localhost      # Connect to Redis on localhost
+      port: 6379           # Use the default Redis port
+      timeout: 1s          # Wait up to 1 second for a response
+
 ######## Management Endpoints:
 #
 #  Exposes all Actuator endpoints over HTTP.

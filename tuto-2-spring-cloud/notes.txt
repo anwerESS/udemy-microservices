@@ -635,6 +635,65 @@ NOTES:
 
 		==> the advantage of implementing retry patern inside the microservices is implementing a fallback mechanism
 
+	- Implementing RateLimiter pattern in gateway
+		* add maven dependency
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-data-redis-reactive</artifactId>
+			</dependency>
+		* add redis configs in application.yml
+			spring:
+			  data:
+				redis:
+				  connect-timeout: 2s  # Wait up to 2 seconds to establish a connection
+				  host: lxocalhost      # Connect to Redis on localhost
+				  port: 6379           # Use the default Redis port
+				  timeout: 1s          # Wait up to 1 second for a response
+		* add rate limiter filter (GatewayserverApplication)
+			public RouteLocator eazyBankRouteConfig(RouteLocatorBuilder routeLocatorBuilder) {			.filters(f -> f.rewritePath(
+				...
+				.requestRateLimiter(config -> config // Configures rate limiting
+						.setRateLimiter(redisRateLimiter())  // Sets the rate limiter to use the RedisRateLimiter bean
+						.setKeyResolver(userKeyResolver())   // Sets the key resolver to use the userKeyResolver bean
+				)
+				...
+			)
+
+			@Bean  // Marks this method as a Spring bean, making it part of the Spring context
+			public Customizer<ReactiveResilience4JCircuitBreakerFactory> defaultCustomizer() {
+				// Returns a Customizer that configures the default settings for all circuit breakers
+				return factory -> factory.configureDefault(id -> new Resilience4JConfigBuilder(id)
+						.circuitBreakerConfig(CircuitBreakerConfig.ofDefaults())  // Uses default Circuit Breaker configuration
+						.timeLimiterConfig(TimeLimiterConfig.custom()  // Configures the TimeLimiter
+								.timeoutDuration(Duration.ofSeconds(4))  // Sets a timeout of 4 seconds (with this, circuit breaker will wait for 4 seconds)
+								.build())
+						.build());
+			}
+
+			@Bean
+			public RedisRateLimiter redisRateLimiter() { /// EXPL001
+				return new RedisRateLimiter(
+						1,  // Number of requests allowed per second (replenish rate)
+						1,  // Maximum number of requests allowed in a burst (burst capacity)
+						1   // Number of tokens requested (consumed) per request (requested tokens)
+				);
+			}
+
+		* docker run -p 6379:6379 --name eazyredis -d redis # run redis
+		* ab -n 10 -c 2 -v 3 http://localhost:8072/eazybank/accounts/api/build-info
+			* ab: The command to run Apache Benchmark.
+			* -n 10: Specifies the total number of requests to send to the server.
+				-n stands for "number of requests."
+				In this case, 10 requests will be sent to the server.
+			* -c 2: Specifies the number of concurrent requests (i.e., the number of requests to perform at the same time).
+				-c stands for "concurrency."
+				Here, 2 concurrent requests will be made to the server.
+			* -v 3: Sets the verbosity level of the output.
+				-v stands for "verbosity."
+				The  3 provides detailed info about the requests and responses, including headers and bodyContent.
+			* apache-benchmark
+				http://localhost:8072/eazybank/cards/api/contact-info: The URL of the server endpoint to be tested.
+
 
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.
