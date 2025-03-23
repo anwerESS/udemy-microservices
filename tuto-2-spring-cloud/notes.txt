@@ -748,6 +748,24 @@ NOTES:
 				* Endpoint-Specific Limits: Applying stricter limits to sensitive endpoints (e.g., login or payment endpoints).
 				* Microservice-Specific Limits: When different microservices have different rate-limiting requirements.
 
+	- Introduction to Bulkhead pattern (not used in this project)
+		* there is no support for Bulkhead pattern in gateway, we can only implement it in microservices using Resilience4j lib
+		* The Bulkhead Pattern achieves resource isolation by:
+			1. Limiting Concurrent Requests:
+				Restricting the number of concurrent requests to a specific component or service.
+				For example, if a service can handle only 10 requests at a time, the bulkhead ensures that no more than 10 requests are processed simultaneously.
+			2. Separating Thread Pools:
+				Using separate thread pools for different components or services.
+				This ensures that a failure or slowdown in one component does not exhaust resources for other components.
+			3.Preventing Cascading Failures:
+				If one component fails or becomes slow, the bulkhead ensures that other components continue to function normally
+		Why Use the Bulkhead Pattern?
+			1. Fault Isolation: Prevents failures in one part of the system from affecting other parts.
+			2. Resource Management: Ensures that no single component can exhaust system resources (e.g., threads, connections).
+			3. Improved Stability: Makes the system more resilient to failures and high load.
+			4. Better Performance: Prevents one slow or failing component from degrading the performance of the entire system.
+
+
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.
 	@EnableFeignClients // enable Feign Clients
