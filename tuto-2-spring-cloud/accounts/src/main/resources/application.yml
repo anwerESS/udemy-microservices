@@ -122,3 +122,10 @@ resilience4j:                # Root configuration for Resilience4j
 #          - java.lang.NullPointerException  # Exceptions that should NOT trigger a retry.(returns fallback without retrying)
         retryExceptions: # with the declaring this, we dont have to declare "ignoreExceptions"
           - java.util.concurrent.TimeoutException  # Exceptions that should trigger a retry.
+
+  ratelimiter:
+    configs:
+      default:
+        timeoutDuration: 1000  # Maximum time (in milliseconds) to wait for permission to execute a request.
+        limitRefreshPeriod: 5000  # Time period (in milliseconds) after which the rate limit is reset.
+        limitForPeriod: 2  # Maximum number of requests allowed in the limitRefreshPeriod. (Allow only 1 request per 5 seconds)

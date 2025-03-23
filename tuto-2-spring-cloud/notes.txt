@@ -694,6 +694,59 @@ NOTES:
 			* apache-benchmark
 				http://localhost:8072/eazybank/cards/api/contact-info: The URL of the server endpoint to be tested.
 
+	- Implementing RateLimiter pattern in accounts (without using redis)
+		* add ratelimiter configs in application.yml
+			resilience4j:
+			  ratelimiter:
+				configs:
+				  default:
+					timeoutDuration: 1000  # Maximum time (in ms) to wait for permission to execute a request.
+					limitRefreshPeriod: 5000  # Time period (in ms) after which the rate limit is reset.
+					limitForPeriod: 1  # Max nbr of requests allowed in the limitRefreshPeriod. Allow only 1 request per 5 secs)
+
+		* add the the annotation @RateLimiter and fallback method in getJavaversion in AccountsController
+		    @RateLimiter(name= "getJavaVersion", fallbackMethod = "getJavaVersionFallback")
+            @GetMapping("/java-version")
+            public ResponseEntity<String> getJavaVersion() {...}
+            public ResponseEntity<String> getJavaVersionFallback(Throwable throwable) {...}
+
+	- Rate Limiting in the API Gateway (using Redis) vs Microservice (using Resilience4j and @RateLimiter annotation)
+		1. Rate Limiting in the API Gateway (using Redis)
+			How It Works:
+				The API Gateway (e.g., Spring Cloud Gateway) enforces rate limits using Redis as a centralized store for tracking request counts.
+				Each request is checked against the rate limit before being forwarded to the downstream microservice.
+				Redis is used to store and synchronize request counts across multiple instances of the Gateway.
+			Advantages
+				* Centralized Control: Rate limiting is enforced at the edge of the system, ensuring consistent behavior across all microservices.
+				* Scalability: Redis allows the rate limiter to scale across multiple Gateway instances.
+				* Ease of Implementation: The Gateway handles rate limiting, so individual microservices don’t need to implement their own logic.
+				* Global Rate Limits: You can enforce global rate limits (e.g., 1000 requests per second across all users) easily.
+			Disadvantages
+				* Single Point of Failure: If Redis goes down, rate limiting may fail, potentially overloading the system.
+				* Limited Granularity: It’s harder to enforce fine-grained rate limits (e.g., per user, per endpoint) in the Gateway.
+				* Latency: Each request requires a call to Redis, which adds some latency.
+			Use Cases
+				* Global Rate Limiting: Enforcing a global limit on the number of requests per second to protect the entire system.
+				* Edge-Level Protection: Protecting the system from abuse or DDoS attacks at the edge (before requests reach the microservices).
+				* Simple Rate Limiting: When you need a straightforward, centralized rate-limiting solution.
+		2. Rate Limiting in the Microservice (using Resilience4j and @RateLimiter annotation)
+			How It Works
+				* Each microservice (e.g., Accounts microservice) implements its own rate limiting using Resilience4j.
+				* The @RateLimiter annotation is used to apply rate limits to specific methods or endpoints.
+				* The rate limiter configuration is defined in the application.yml file.
+			Advantages
+				* Fine-Grained Control: You can enforce per-user, per-endpoint, or per-service rate limits.
+				* Decentralized: Each microservice is responsible for its own rate limiting, reducing dependency on a central component.
+				* Flexibility: You can customize rate limits for specific use cases (e.g., stricter limits for sensitive endpoints).
+				* No External Dependency: Resilience4j works in-memory, so you don’t need an external store like Redis.
+			Disadvantages
+				* Complexity: Each microservice must implement and manage its own rate-limiting logic.
+				* Inconsistent Limits: If multiple microservices enforce different rate limits, it can lead to inconsistent behavior.
+				* Scalability: In-memory rate limiting may not scale well across multiple instances of the same microservice.
+			Use Cases
+				* Per-User Rate Limiting: Enforcing limits on a per-user basis (e.g., 10 requests per second per user).
+				* Endpoint-Specific Limits: Applying stricter limits to sensitive endpoints (e.g., login or payment endpoints).
+				* Microservice-Specific Limits: When different microservices have different rate-limiting requirements.
 
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.
