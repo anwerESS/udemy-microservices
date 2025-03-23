@@ -1,4 +1,15 @@
 services:
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
+      timeout: 10s
+      retries: 10
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
 #  rabbit:
 #    image: rabbitmq:3.13-management  # Uses the RabbitMQ image with the management plugin enabled.
 #    hostname: rabbitmq  # Sets the hostname of the container to "rabbitmq".
@@ -46,7 +57,7 @@ services:
       service: microservice-db-config
 
   eurekaserver:
-    image: "anweress/eurekaserver:s9"
+    image: "anweress/eurekaserver:s10"
     container_name: eurekaserver-ms
     ports:
       - "8070:8070"
@@ -66,7 +77,7 @@ services:
       SPRING_APPLICATION_NAME: "eurekaserver"
 
   configserver:
-    image: "anweress/configserver:s9"  # Uses a custom Docker image for the Config Server.
+    image: "anweress/configserver:s10"  # Uses a custom Docker image for the Config Server.
     container_name: configserver-ms  # Sets the container name to "configserver-ms".
     ports:
       - "8071:8071"  # Exposes port 8071 for the Config Server.
@@ -84,7 +95,7 @@ services:
       service: microservice-base-config  # Uses the `microservice-base-config` configuration.
 
   accounts:
-    image: "anweress/accounts:s9"  # Uses a custom Docker image for the Accounts microservice.
+    image: "anweress/accounts:s10"  # Uses a custom Docker image for the Accounts microservice.
     container_name: accounts-ms  # Sets the container name to "accounts-ms".
     ports:
       - "8080:8080"  # Exposes port 8080 for the Accounts microservice.
@@ -107,7 +118,7 @@ services:
       service: microservice-eureka-config  # Uses the `microservice-eureka-config` configuration.
 
   loans:
-    image: "anweress/loans:s9"  # Uses a custom Docker image for the Loans microservice.
+    image: "anweress/loans:s10"  # Uses a custom Docker image for the Loans microservice.
     container_name: loans-ms  # Sets the container name to "loans-ms".
     ports:
       - "8090:8090"  # Exposes port 8090 for the Loans microservice.
@@ -130,7 +141,7 @@ services:
       service: microservice-eureka-config  # Uses the `microservice-eureka-config` configuration.
 
   cards:
-    image: "anweress/cards:s9"  # Uses a custom Docker image for the Cards microservice.
+    image: "anweress/cards:s10"  # Uses a custom Docker image for the Cards microservice.
     container_name: cards-ms  # Sets the container name to "cards-ms".
     ports:
       - "9000:9000"  # Exposes port 9000 for the Cards microservice.
@@ -153,7 +164,7 @@ services:
       service: microservice-eureka-config  # Uses the `microservice-eureka-config` configuration.
 
   gatewayserver:
-    image: "anweress/gatewayserver:s9"
+    image: "anweress/gatewayserver:s10"
     container_name: gatewayserver-ms
     ports:
       - "8072:8072"
@@ -164,8 +175,14 @@ services:
         condition: service_healthy
       cards:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "gatewayserver"
+      SPRING_DATA_REDIS_CONNECT-TIMEOUT: 2s
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_TIMEOUT: 1s
     extends:
       file: common-config.yml
       service: microservice-eureka-config
