@@ -840,6 +840,14 @@ NOTES:
 	- Demo of custom Dashboards (we should login first)
 		* look at ${ProjectFolder}/notes/grafana/img_01{0..1}png)
 
+	- Create Alerts & Send notifications using Grafana - Approach 1
+		* add new role (look at ${ProjectFolder}/notes/grafana/img_012png)
+		* add contact point (look at ${ProjectFolder}/notes/grafana/img_013png)
+
+	- Create Alerts & Send notifications using Grafana - Approach 2
+		* add new dashboard (look at ${ProjectFolder}/notes/grafana/img_01{4..7}png)
+
+
 
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.
