@@ -1,0 +1,25 @@
+---
+# Promtail server configuration
+server:
+  http_listen_port: 9080  # Port for HTTP metrics
+  grpc_listen_port: 0  # Disable gRPC (0 means disabled)
+
+# File to store log positions
+positions:
+  filename: /tmp/positions.yaml  # Location of positions file
+
+# Clients configuration (where to send logs)
+clients:
+  - url: http://gateway:3100/loki/api/v1/push  # Loki endpoint
+    tenant_id: tenant1  # Tenant ID for multi-tenancy
+
+# Log scraping configurations
+scrape_configs:
+  - job_name: flog_scrape  # Name of this scraping job
+    docker_sd_configs:  # Docker service discovery
+      - host: unix:///var/run/docker.sock  # Docker socket
+        refresh_interval: 5s  # How often to refresh targets
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']  # Source label
+        regex: '/(.*)'  # Regex to extract container name
+        target_label: 'container'  # Target label for the extracted name

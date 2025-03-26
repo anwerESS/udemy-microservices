@@ -1,0 +1,81 @@
+# ==============================================
+# LOGGING ARCHITECTURE WITH GRAFANA AND LOKI
+# ==============================================
+
+graph TD
+    A[Applications] -->|Stdout/Stderr Logs| B(Promtail)
+    B --> C{NGINX Gateway}
+    C --> D[Loki Write]
+    D --> E[(MinIO Storage)]
+    C --> F[Loki Read]
+    F --> E
+    F --> G[Grafana]
+
+# CORE COMPONENTS
+1. Promtail (Log Collector or Log collection agent)
+   - Role: Collects and ships container logs to Loki
+   - Key Features:
+     * Auto-discovers Docker containers
+     * Adds metadata (container_name, labels)
+     * Batching and compression
+   - Config Example:
+     ```
+     scrape_configs:
+       - job_name: docker
+         docker_sd_configs:
+           - host: unix:///var/run/docker.sock
+     ```
+
+2. NGINX Gateway
+   - Purpose: Unified entry point for Loki traffic
+   - Routes:
+     * /loki/api/v1/push → Loki Write
+     * /loki/api/v1/query → Loki Read
+   - Benefits:
+     * Load balancing
+     * Simplified networking
+     * Single TLS endpoint
+
+3. Loki Write
+   - Responsibilities:
+     * Validates log entries
+     * Chunks logs (default: 1.5MB chunks)
+     * Writes to MinIO storage
+   - Performance Tuning:
+     ```
+     limits_config:
+       ingestion_rate_mb: 16
+       ingestion_burst_size_mb: 32
+     ```
+
+4. MinIO Storage
+   - Data Structure:
+     * loki-data/: Compressed log chunks
+     * loki-ruler/: Alert rules
+   - Retention Policy Example:
+     ```
+     storage_config:
+       retention_period: 720h # 30 days
+     ```
+
+5. Loki Read
+   - Query Processing:
+     * Parses LogQL queries
+     * Retrieves index from BoltDB
+     * Fetches chunks from MinIO
+   - Cache Configuration:
+     ```
+     query_range:
+       results_cache:
+         cache: redis
+     ```
+
+6. Grafana
+   - Features:
+     * Label browser
+     * Log line filtering
+     * Time range selection
+   - Sample LogQL Query:
+     ```
+     {container="accounts-ms"} |= "ERROR" | logfmt | duration > 500ms
+     ```

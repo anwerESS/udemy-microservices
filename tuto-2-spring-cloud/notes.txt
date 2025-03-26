@@ -783,6 +783,14 @@ NOTES:
 			  retry:
 				retryAspectOrder: 2
 
+	- Implementing logging using Grafana, Loki & promtail (old version of grafana 2.8.x)
+		* https://grafana.com/docs/loki/v2.8.x/getting-started/
+		* look at ${ProjectFolder}/notes/grafana
+
+
+
+
+
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.
 	@EnableFeignClients // enable Feign Clients

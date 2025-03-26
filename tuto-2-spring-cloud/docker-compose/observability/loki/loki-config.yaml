@@ -1,0 +1,60 @@
+---
+# loki-config.yaml (Loki Configuration)
+# Purpose: Configures Loki, Grafana's horizontally-scalable log aggregation system.
+#
+# Key Components:
+#   * server: Sets Loki's HTTP port (3100)
+#   * memberlist: Configures cluster communication for distributed deployment
+#   * schema_config: Defines how logs are stored (using BoltDB for indexes and S3 for chunks)
+#   * common: Shared storage configuration using MinIO (S3-compatible)
+#     - path_prefix: Base storage path
+#     - replication_factor: Data redundancy (1 = no replication)
+#     - s3: Connection details for MinIO storage
+#     - ruler: Alert rule storage configuration
+#
+# Example Flow: When logs arrive, Loki:
+#   1. Stores index references in BoltDB
+#   2. Stores actual log chunks in MinIO (S3)
+#   3. Distributes processing across cluster members
+
+# Loki server configuration
+server:
+  http_listen_port: 3100  # Port for HTTP traffic
+
+# Memberlist configuration for distributed deployment
+memberlist:
+  join_members:
+    - loki:7946  # Address of cluster members to join
+
+# Schema configuration for data storage
+schema_config:
+  configs:
+    - from: 2021-08-01  # Starting date for this schema
+      store: boltdb-shipper  # Storage engine for indexes
+      object_store: s3  # Backend storage for chunks
+      schema: v11  # Schema version
+      index:
+        prefix: index_  # Prefix for index files
+        period: 24h  # How often to rotate index files
+
+# Common configuration shared across components
+common:
+  path_prefix: /loki  # Base path for storage
+  replication_factor: 1  # Number of copies of each log entry
+  storage:
+    s3:
+      endpoint: minio:9000  # S3-compatible storage endpoint
+      insecure: true  # Allow insecure connections (HTTP)
+      bucketnames: loki-data  # Bucket name for log storage
+      access_key_id: loki  # S3 access key
+      secret_access_key: supersecret  # S3 secret key
+      s3forcepathstyle: true  # Use path-style S3 URLs
+  ring:
+    kvstore:
+      store: memberlist  # Key-value store for ring membership
+
+# Ruler configuration for alerting rules
+ruler:
+  storage:
+    s3:
+      bucketnames: loki-ruler  # Bucket name for ruler storage
