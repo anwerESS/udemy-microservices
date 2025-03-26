@@ -1,0 +1,49 @@
+# Grafana Datasource Configuration File (YAML)
+# This file is automatically loaded by Grafana on startup due to provisioning.
+# Location: /etc/grafana/provisioning/datasources/datasource.yml
+# -----------------------------------------------------------------------------
+
+# API version for Grafana's configuration format (always '1' for this structure)
+apiVersion: 1
+
+# Step 1: Clean up existing datasources to avoid conflicts (optional)
+# -----------------------------------------------------------------------------
+deleteDatasources:
+  - name: Prometheus  # Remove old Prometheus datasource if it exists
+  - name: Loki       # Remove old Loki (logs) datasource
+
+# Step 2: Define new datasources for observability (Prometheus, Loki, Tempo)
+# -----------------------------------------------------------------------------
+datasources:
+  # Prometheus (Metrics)
+  - name: Prometheus
+    type: prometheus             # Datasource type
+    uid: prometheus              # Unique identifier
+    url: http://prometheus:9090  # Points to Prometheus server (DNS name in Docker network)
+    access: proxy                # Grafana proxies requests to Prometheus
+    orgId: 1                     # Default organization ID
+    basicAuth: false             # No authentication
+    isDefault: false             # Not the default datasource (set to true if needed)
+    version: 1                   # Configuration version
+    editable: true               # Allows editing via Grafana UI
+    jsonData:
+      httpMethod: GET            # HTTP method for queries
+
+
+  # Loki (Log Aggregation)
+  - name: Loki
+    type: loki                   # Datasource for logs
+    uid: loki                    # Unique ID
+    access: proxy                # Proxied connection
+    orgId: 1                     # Organization ID
+    editable: true
+    url: http://gateway:3100     # Loki gateway URL (e.g., via Grafana Loki Gateway)
+    jsonData:
+      httpHeaderName1: "X-Scope-OrgID"  # Required for multi-tenant Loki
+      derivedFields:
+        - datasourceUid: tempo   # Links logs to traces (Tempo datasource)
+          matcherRegex: "\\[.+,(.+),.+\\]"  # Extracts TraceID from log lines
+          name: TraceID          # Field name for trace linking
+          url: '$${__value.raw}' # Template for trace URL
+    secureJsonData:
+      httpHeaderValue1: "tenant1"  # Tenant ID for Loki (hidden in UI for security)

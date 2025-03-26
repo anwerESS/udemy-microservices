@@ -63,6 +63,14 @@ management:
     env:
       enabled: true  # Enables the inclusion of environment information in the `/actuator/info` endpoint.
       # When enabled, the `/actuator/info` endpoint will include details about the application's environment (e.g., system properties, environment variables).
+  # Metrics-related settings (powered by Micrometer)
+  metrics:
+    # Tags (key-value pairs) attached to all collected metrics
+    tags:
+      # Adds an 'application' tag with the value of the service's name
+      # This helps distinguish metrics in a multi-service environment
+      application: ${spring.application.name}
+
 eureka:
   instance:
     preferIpAddress: true  # Configures the Eureka instance to use its IP address instead of its hostname when registering with the Eureka Server.

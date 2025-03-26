@@ -51,3 +51,10 @@ management:
       probes:
         enabled: true  # Enables Kubernetes-specific health probes (/actuator/health/liveness and /actuator/health/readiness).
         # These are used by Kubernetes to check the liveness and readiness of the application.
+  # Metrics-related settings (powered by Micrometer)
+  metrics:
+    # Tags (key-value pairs) attached to all collected metrics
+    tags:
+      # Adds an 'application' tag with the value of the service's name
+      # This helps distinguish metrics in a multi-service environment
+      application: ${spring.application.name}

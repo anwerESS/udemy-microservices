@@ -18,3 +18,10 @@ management:
     health:
       probes:
         enabled: true
+  # Metrics-related settings (powered by Micrometer)
+  metrics:
+    # Tags (key-value pairs) attached to all collected metrics
+    tags:
+      # Adds an 'application' tag with the value of the service's name
+      # This helps distinguish metrics in a multi-service environment
+      application: ${spring.application.name}

@@ -787,6 +787,45 @@ NOTES:
 		* https://grafana.com/docs/loki/v2.8.x/getting-started/
 		* look at ${ProjectFolder}/notes/grafana
 
+	- Setup of micrometer inside microservices
+		* add micrometer to pom.xml for all microservices
+			<dependency>
+			  <groupId>io.micrometer</groupId>
+			  <artifactId>micrometer-registry-prometheus</artifactId>
+			</dependency>
+		* add metrics settings in application.properties for all microservices
+		  metrics:
+            # Tags (key-value pairs) attached to all collected metrics
+            tags:
+              # Adds an 'application' tag with the value of the service's name
+              # This helps distinguish metrics in a multi-service environment
+              application: ${spring.application.name}
+         * show the list off metrcis (http://localhost:8080/actuator/metrics)
+         	- example CPU usgae (http://localhost:8080/actuator/metrics/process.cpu.usage)
+				{
+				  "name": "process.cpu.usage",
+				  "description": "The \"recent cpu usage\" for the Java Virtual Machine process",
+				  "measurements": [
+					{
+					  "statistic": "VALUE",
+					  "value": 0.0075187969924812
+					}
+				  ],
+				  "availableTags": [
+					{
+					  "tag": "application",
+					  "values": [
+						"accounts"
+					  ]
+					}
+				  ]
+				}
+
+		* expose Prometheus-formatted metrics (http://localhost:8080/actuator/prometheus)
+
+	- Setup of prometheus inside microservices
+		* http://localhost:9090/targets # (show all running containers info) (look at ${ProjectFolder}/notes/grafana/img_002.png)
+		* http://localhost:9090/graph # (show graph of all running containers info) (look at ${ProjectFolder}/notes/grafana/img_003.png)
 
 
 

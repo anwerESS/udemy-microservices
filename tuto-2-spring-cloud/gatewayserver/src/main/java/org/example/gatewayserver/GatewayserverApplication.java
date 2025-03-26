@@ -101,10 +101,10 @@ public class GatewayserverApplication {
                         "X-Response-Time",
                         LocalDateTime.now().toString()
                     )
-                    .requestRateLimiter(config -> config // Configures rate limiting
-                        .setRateLimiter(redisRateLimiter())  // Sets the rate limiter to use the RedisRateLimiter bean
-                        .setKeyResolver(userKeyResolver())   // Sets the key resolver to use the userKeyResolver bean
-                    )
+//                    .requestRateLimiter(config -> config // Configures rate limiting
+//                        .setRateLimiter(redisRateLimiter())  // Sets the rate limiter to use the RedisRateLimiter bean
+//                        .setKeyResolver(userKeyResolver())   // Sets the key resolver to use the userKeyResolver bean
+//                    )
                 )
                 .uri("lb://CARDS"))
             .build();
@@ -125,14 +125,14 @@ public class GatewayserverApplication {
     /// - When a request is made, the rate limiter checks if there are enough tokens available.
     /// - If tokens are available, the request is allowed, and the token count is decremented.
     /// - If no tokens are available, the request is rejected (e.g., with a 429 Too Many Requests response).
-    @Bean
-    public RedisRateLimiter redisRateLimiter() { /// EXPL001
-        return new RedisRateLimiter(
-            1,  // Number of requests allowed per second (replenish rate)
-            1,  // Maximum number of requests allowed in a burst (burst capacity)
-            1   // Number of tokens requested (consumed) per request (requested tokens)
-        );
-    }
+//    @Bean
+//    public RedisRateLimiter redisRateLimiter() { /// EXPL001
+//        return new RedisRateLimiter(
+//            1,  // Number of requests allowed per second (replenish rate)
+//            1,  // Maximum number of requests allowed in a burst (burst capacity)
+//            1   // Number of tokens requested (consumed) per request (requested tokens)
+//        );
+//    }
 
     // KeyResolver:
     //     This is used to determine the key for rate limiting.
@@ -144,16 +144,16 @@ public class GatewayserverApplication {
     // Why Use This?
     //     This allows you to enforce rate limits on a per-user basis.
     //     For example, you can limit each user to 1 request per second, regardless of their IP address or other factors.
-    @Bean
-    KeyResolver userKeyResolver() {
-        return exchange -> Mono.justOrEmpty(
-            exchange
-            .getRequest()
-            .getHeaders()
-            .getFirst("user")  // Extracts the "user" header from the request
-        )
-        .defaultIfEmpty("anonymous");  // Uses "anonymous" as the default key if the "user" header is missing
-    }
+//    @Bean
+//    KeyResolver userKeyResolver() {
+//        return exchange -> Mono.justOrEmpty(
+//            exchange
+//            .getRequest()
+//            .getHeaders()
+//            .getFirst("user")  // Extracts the "user" header from the request
+//        )
+//        .defaultIfEmpty("anonymous");  // Uses "anonymous" as the default key if the "user" header is missing
+//    }
 
 }
 
