@@ -825,9 +825,20 @@ NOTES:
 
 	- Setup of prometheus inside microservices
 		* http://localhost:9090/targets # (show all running containers info) (look at ${ProjectFolder}/notes/grafana/img_002.png)
-		* http://localhost:9090/graph # (show graph of all running containers info) (look at ${ProjectFolder}/notes/grafana/img_003.png)
+		* http://localhost:9090/graph # (show graph of all metrics info) (look at ${ProjectFolder}/notes/grafana/img_003.png)
 
+	- Demo of Prometheus & Grafana integration (look at ${ProjectFolder}/notes/grafana/img_004.png)
 
+	- Demo of Grafana inbuilt (we should login first)
+		* doc
+			https://prometheus.io/docs/visualization/grafana/
+		* import dashboards
+			https://grafana.com/grafana/dashboards/4701-jvm-micrometer/
+            https://grafana.com/grafana/dashboards/11378-justai-system-monitor
+		* look at ${ProjectFolder}/notes/grafana/img_00{5..9}png)
+
+	- Demo of custom Dashboards (we should login first)
+		* look at ${ProjectFolder}/notes/grafana/img_01{0..1}png)
 
 
 ANNOTATIONS:
