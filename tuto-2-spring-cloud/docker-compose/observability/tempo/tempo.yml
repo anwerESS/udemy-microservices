@@ -1,0 +1,50 @@
+# Tempo Configuration File
+# ------------------------
+# Defines how Tempo receives, processes, stores and manages trace data
+
+# Server Configuration
+# -------------------
+server:
+  http_listen_port: 3100  # The port Tempo listens on for HTTP requests
+  # (Note: 3100 is the default port for Tempo/Loki)
+#  grpc_max_recv_msg_size: 8388608  # Increase to 8MB (default is 4MB)
+#  grpc_max_send_msg_size: 8388608  # Increase to 8MB
+
+# Receiver Configuration (How Tempo accepts trace data)
+# ---------------------------------------------------
+distributor:
+  receivers:
+    otlp:  # OpenTelemetry Protocol (OTLP) receiver settings
+      protocols:
+        grpc:  # Enables gRPC receiver (default port: 4317)
+        http:   # Enables HTTP receiver (default port: 4318)
+        # This matches the OTEL_EXPORTER_OTLP_ENDPOINT in your app config
+
+# Ingester Configuration (How traces are processed)
+# ------------------------------------------------
+ingester:
+  trace_idle_period: 10s  # How long to wait before flushing a partial trace
+  max_block_bytes: 1_000_000  # Max size (1MB) of trace data in memory before flushing to disk
+  max_block_duration: 5m  # Max time to hold traces in memory before flushing
+
+# Compactor Configuration (How traces are compressed/retained)
+# ----------------------------------------------------------
+compactor:
+  compaction:
+    compaction_window: 1h  # Time window for grouping traces during compaction
+    max_compaction_objects: 1000000  # Max traces to compact at once
+    block_retention: 1h  # How long to keep uncompacted trace data
+    compacted_block_retention: 10m  # How long to keep compacted trace data
+
+# Storage Configuration (Where traces are stored)
+# ---------------------------------------------
+storage:
+  trace:
+    backend: local  # Using local filesystem for storage (for demo/dev)
+    # In production you'd use S3/GCS/Azure Blob Storage
+    local:
+      path: /tmp/tempo/blocks  # Directory to store trace data
+      # Note: /tmp is ephemeral - data lost on restart
+    pool:
+      max_workers: 100  # Max concurrent workers for storage operations
+      queue_depth: 10000  # Max pending storage operations queue size

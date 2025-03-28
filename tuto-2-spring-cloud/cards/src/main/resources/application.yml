@@ -93,3 +93,14 @@ logging:
       example:
         cards: DEBUG  # Sets the logging level for the `org.example.cards` package to DEBUG.
         # This enables detailed logging for the Gateway Server application, which is useful for debugging.
+  pattern:
+    # Customizes the log line format (using Logback/Log4j pattern syntax)
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
+    # Pattern breakdown:
+    #   %5p            - Right-padded log level (e.g., "DEBUG", "ERROR") with 5 chars
+    #   ${spring.application.name} - Inserts the application name from Spring config
+    #   %X{trace_id}   - Adds distributed tracing ID (from Sleuth/OpenTelemetry)
+    #   %X{span_id}    - Adds span ID for tracing within a single request flow
+    #
+    # Example output:
+    #   DEBUG [account-service,80f9ee446ccf34b4,80f9ee446ccf34b4] - Some log message

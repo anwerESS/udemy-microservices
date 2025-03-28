@@ -16,9 +16,9 @@ services:
       - minio  # Requires storage backend
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1" ]
-      interval: 10s
+      interval: 20s
       timeout: 5s
-      retries: 5
+      retries: 10
     networks: &loki-dns
       anweress:
         aliases:
@@ -38,9 +38,9 @@ services:
       - ../observability/loki/loki-config.yaml:/etc/loki/config.yaml  # Mount config file
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1" ]
-      interval: 10s
+      interval: 20s
       timeout: 5s
-      retries: 5
+      retries: 10
     depends_on:
       - minio  # Requires storage backend
     networks:
@@ -84,6 +84,43 @@ services:
       file: common-config.yml
       service: network-deploy-service
 
+  # Prometheus - Metrics aggregation and alerting
+  prometheus:
+    image: prom/prometheus:v3.1.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
+  # Tempo (Distributed Tracing Backend) Service Definition
+  # ----------------------------------------------------
+  # Part of Grafana's observability stack - stores and queries trace data
+  tempo:
+    # Base Configuration
+    image: grafana/tempo:2.6.1  # Official Tempo Docker image (version pinned for stability)
+    container_name: tempo       # Explicit container naming for easier management
+    # Startup Command
+    command: -config.file /etc/tempo-config.yml  # Specifies the configuration file location
+    # Network Port Mapping
+    ports:
+      - "3110:3100"  # Maps host port 3110 → container port 3100 (Tempo's HTTP interface)
+      # 3100 is the standard port for querying traces
+      - "4317:4317"  # Maps host port 4318 → container port 4318 (OTLP HTTP receiver) (for bew version we should use 4318)
+      # This is where applications send trace data via OpenTelemetry
+    # Configuration Mount
+    volumes:
+      - ../observability/tempo/tempo.yml:/etc/tempo-config.yml  # Mounts custom config file
+      # The mounted file contains all Tempo settings (storage, retention, etc.)
+      # Path is relative to the docker-compose file location
+    # Shared Configuration
+    extends:
+      file: common-config.yml              # Inherits common settings from base config
+      service: network-deploy-service      # Likely includes network/healthcheck settings
+
   # Grafana - Visualization dashboard
   # Auto-configures Loki datasource on startup
   # Exposes web UI on port 3000
@@ -99,27 +136,16 @@ services:
       - sh
       - -euc
       - |
-        mkdir -p /etc/grafana/provisioning/datasources
-        cat <<EOF > /etc/grafana/provisioning/datasources/ds.yaml
-        apiVersion: 1
-        datasources:
-          - name: Loki
-            type: loki
-            access: proxy
-            url: http://gateway:3100
-            jsonData:
-              httpHeaderName1: "X-Scope-OrgID"
-            secureJsonData:
-              httpHeaderValue1: "tenant1"
-        EOF
         /run.sh
     ports:
       - "3000:3000"  # Web interface
+    volumes:
+      - ../observability/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1" ]
-      interval: 10s
+      interval: 20s
       timeout: 5s
-      retries: 5
+      retries: 10
     extends:
       file: common-config.yml
       service: network-deploy-service
@@ -190,9 +216,9 @@ services:
       - "3100:3100"
     healthcheck:
       test: ["CMD", "service", "nginx", "status"]
-      interval: 10s
+      interval: 20s
       timeout: 5s
-      retries: 5
+      retries: 10
     extends:
       file: common-config.yml
       service: network-deploy-service
@@ -216,7 +242,7 @@ services:
   #      - "15672:15672"  # Exposes RabbitMQ's management UI port (15672) for monitoring.
   #    healthcheck:
   #      test: rabbitmq-diagnostics check_port_connectivity  # Checks if RabbitMQ is reachable.
-  #      interval: 10s  # Runs the health check every 10 seconds.
+  #      interval: 20s  # Runs the health check every 10 seconds.
   #      timeout: 5s  # Sets a 5-second timeout for the health check.
   #      retries: 10  # Retries the health check up to 10 times before marking the service as unhealthy.
   #      start_period: 5s  # Waits 5 seconds before starting health checks (to allow RabbitMQ to initialize).
@@ -264,7 +290,7 @@ services:
         condition: service_healthy
     healthcheck:
       test: "curl --fail --silent localhost:8070/actuator/health/readiness | grep UP || exit 1"
-      interval: 10s
+      interval: 20s
       timeout: 5s
       retries: 10
       start_period: 10s
@@ -273,6 +299,7 @@ services:
       service: microservice-configserver-config
     environment:
       SPRING_APPLICATION_NAME: "eurekaserver"
+      OTEL_SERVICE_NAME: "eurekaserver"
 
   configserver:
     image: "anweress/configserver:s11"  # Uses a custom Docker image for the Config Server.
@@ -284,13 +311,15 @@ services:
     #        condition: service_healthy  # Ensures the RabbitMQ service is healthy before starting.
     healthcheck:
       test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1"  # Checks if the Config Server is ready.
-      interval: 10s  # Runs the health check every 10 seconds.
+      interval: 20s  # Runs the health check every 10 seconds.
       timeout: 5s  # Sets a 5-second timeout for the health check.
       retries: 10  # Retries the health check up to 10 times before marking the service as unhealthy.
       start_period: 10s  # Waits 10 seconds before starting health checks (to allow the Config Server to initialize).
     extends:
       file: common-config.yml  # Extends configuration from the `common-config.yml` file.
       service: microservice-base-config  # Uses the `microservice-base-config` configuration.
+    environment:
+      OTEL_SERVICE_NAME: "configserver"
 
   accounts:
     image: "anweress/accounts:s11"  # Uses a custom Docker image for the Accounts microservice.
@@ -304,13 +333,15 @@ services:
         condition: service_healthy
     healthcheck:
       test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
-      interval: 10s
+      interval: 20s
       timeout: 5s
       retries: 10
       start_period: 10s
     environment:
       SPRING_APPLICATION_NAME: "accounts"  # Sets the Spring application name to "accounts".
       SPRING_DATASOURCE_URL: "jdbc:mysql://accountsdb:3306/accountsdb"
+      OTEL_SERVICE_NAME: "accounts"
+
     extends:
       file: common-config.yml  # Extends configuration from the `common-config.yml` file.
       service: microservice-eureka-config  # Uses the `microservice-eureka-config` configuration.
@@ -327,13 +358,15 @@ services:
         condition: service_healthy  # Ensures the Config Server is healthy before starting.
     healthcheck:
       test: "curl --fail --silent localhost:8090/actuator/health/readiness | grep UP || exit 1"
-      interval: 10s
+      interval: 20s
       timeout: 5s
       retries: 10
       start_period: 10s
     environment:
       SPRING_APPLICATION_NAME: "loans"  # Sets the Spring application name to "loans".
       SPRING_DATASOURCE_URL: "jdbc:mysql://loansdb:3306/loansdb" # must be 3306 and not 3307 because database start inside the docker network
+      OTEL_SERVICE_NAME: "loans"
+
     extends:
       file: common-config.yml  # Extends configuration from the `common-config.yml` file.
       service: microservice-eureka-config  # Uses the `microservice-eureka-config` configuration.
@@ -350,16 +383,18 @@ services:
         condition: service_healthy  # Ensures the Config Server is healthy before starting.
     healthcheck:
       test: "curl --fail --silent localhost:9000/actuator/health/readiness | grep UP || exit 1"
-      interval: 10s
+      interval: 20s
       timeout: 5s
       retries: 10
       start_period: 10s
     environment:
       SPRING_APPLICATION_NAME: "cards"  # Sets the Spring application name to "cards".
       SPRING_DATASOURCE_URL: "jdbc:mysql://cardsdb:3306/cardsdb" #  must be 3306 and not 3307 because database start inside the docker network
+      OTEL_SERVICE_NAME: "cards"
     extends:
       file: common-config.yml  # Extends configuration from the `common-config.yml` file.
       service: microservice-eureka-config  # Uses the `microservice-eureka-config` configuration.
+
 
   gatewayserver:
     image: "anweress/gatewayserver:s11"
@@ -377,6 +412,7 @@ services:
     #        condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "gatewayserver"
+      OTEL_SERVICE_NAME: "gatewayserver"
     #      SPRING_DATA_REDIS_CONNECT-TIMEOUT: 2s
     #      SPRING_DATA_REDIS_HOST: redis
     #      SPRING_DATA_REDIS_PORT: 6379

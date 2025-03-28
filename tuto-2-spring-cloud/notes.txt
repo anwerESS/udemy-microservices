@@ -847,6 +847,59 @@ NOTES:
 	- Create Alerts & Send notifications using Grafana - Approach 2
 		* add new dashboard (look at ${ProjectFolder}/notes/grafana/img_01{4..7}png)
 
+	- Implementing Tracing using Grafana, Tempo & OpenTelemetry
+		https://opentelemetry.io/docs/getting-started/dev/
+		https://opentelemetry.io/docs/zero-code/java/agent/getting-started/
+		* add  OpenTelemetry Java Agent dependency in pom.xml of all services
+			This dependency provides the OpenTelemetry Java Agent, which enables automatic instrumentation of your Java application for observability (traces, metrics, and logs).
+			    <dependency>
+                  <groupId>io.opentelemetry.javaagent</groupId>
+                  <artifactId>opentelemetry-javaagent</artifactId>
+                  <version>${otelVersion}</version>
+                  <scope>runtime</scope>
+                </dependency>
+    	* add logs in (loans, cards and cusomers controllers
+    		/// Example in fetchCustomerDetails
+			@GetMapping("/fetchCustomerDetails")
+			public ResponseEntity<CustomerDetailsDto> fetchCustomerDetails(
+											@RequestHeader("eazybank-correlation-id") String correlationId,
+											@RequestParam
+											   @Pattern(regexp="(^$|[0-9]{10})",message = "Mobile number must be 10 digits")
+											   String mobileNumber){
+                    logger.debug("fetchCustomerDetails method start");
+                    CustomerDetailsDto customerDetailsDto = iCustomersService.fetchCustomerDetails(mobileNumber, correlationId);
+                    logger.debug("fetchCustomerDetails method end");
+		* Customizes the log line format (using Logback/Log4j pattern syntax)
+			logging:
+			  pattern:
+                # Customizes the log line format (using Logback/Log4j pattern syntax)
+                level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
+        * add tempo microservice in docker-compose.yml
+        	is a (Distributed Tracing Backend) that stores and queries trace data
+		* show traces and get traceID
+			look at ${ProjectFolder}/notes/grafana/img_01{8..9}.png)
+		* using tempo, we can analyse the request based on the trace ID
+			look at ${ProjectFolder}/notes/grafana/img_20.png)
+		* Navigating to Tempo from Loki logs with add a derived field
+			With the help of these derived fields, we can try to tell to the Loki whenever it identifies some pattern, it can try to derive a field and using that field we can try to link with other components inside the grafana.
+				look at ${ProjectFolder}/notes/grafana/img_21.png)
+			we can also define a derived field in datasource.yml
+			  - name: Loki
+                type: loki                   # Datasource for logs
+                uid: loki                    # Unique ID
+                access: proxy                # Proxied connection
+                orgId: 1                     # Organization ID
+                editable: true
+                url: http://gateway:3100     # Loki gateway URL (e.g., via Grafana Loki Gateway)
+                jsonData:
+                  httpHeaderName1: "X-Scope-OrgID"  # Required for multi-tenant Loki
+                  derivedFields:
+                    - datasourceUid: tempo   # Links logs to traces (Tempo datasource)
+                      matcherRegex: "\\[.+,(.+),.+\\]"  # Extracts TraceID from log lines
+                      name: TraceID          # Field name for trace linking
+                      url: '$${__value.raw}' # Template for trace URL
+			when we clic on the traceID and then on the "Tempo" button, it will open
+				look at ${ProjectFolder}/notes/grafana/img_22.png)
 
 
 ANNOTATIONS:

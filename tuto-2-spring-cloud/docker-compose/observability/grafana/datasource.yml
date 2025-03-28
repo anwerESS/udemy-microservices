@@ -11,6 +11,7 @@ apiVersion: 1
 deleteDatasources:
   - name: Prometheus  # Remove old Prometheus datasource if it exists
   - name: Loki       # Remove old Loki (logs) datasource
+  - name: Tempo       # Remove old Tempo (logs) datasource
 
 # Step 2: Define new datasources for observability (Prometheus, Loki, Tempo)
 # -----------------------------------------------------------------------------
@@ -29,6 +30,33 @@ datasources:
     jsonData:
       httpMethod: GET            # HTTP method for queries
 
+  # Tempo Datasource Configuration
+  # ------------------------------
+  # Configures Grafana to query distributed traces from Tempo
+  - name: Tempo
+    type: tempo                  # Specialized datasource for Grafana Tempo
+    uid: tempo                   # Unique identifier for reference in dashboards
+    url: http://tempo:3100       # Points to Tempo service (using Docker DNS)
+
+    # Connection Settings
+    access: proxy                # Grafana server proxies requests to Tempo
+    orgId: 1                     # Default organization ID
+    basicAuth: false             # No authentication required
+    isDefault: false             # Not selected as default datasource
+    version: 1                   # Configuration schema version
+    editable: true               # Allows modification via Grafana UI
+
+    # Advanced Configuration
+    jsonData:
+      httpMethod: GET            # HTTP verb for API requests
+
+      # Service Graph Integration
+      serviceMap:
+        datasourceUid: 'prometheus'
+        # Links Tempo traces to Prometheus metrics:
+        # - Enables service dependency graphs
+        # - Correlates trace latency with metric data
+        # - Requires Prometheus datasource UID to match exactly
 
   # Loki (Log Aggregation)
   - name: Loki

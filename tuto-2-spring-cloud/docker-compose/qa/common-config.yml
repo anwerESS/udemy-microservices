@@ -7,7 +7,7 @@ services:
       test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
       timeout: 10s
       retries: 10
-      interval: 10s
+      interval: 20s
       start_period: 10s
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -23,7 +23,31 @@ services:
       resources:
         limits:
           memory: 700m  # Limits the container's memory usage to 700 MB.
-  #    environment:
+    environment:
+      # Injects the OpenTelemetry Java agent for auto-instrumentation
+      #   This enables automatic tracing of:
+      #   - HTTP requests (Spring MVC, WebFlux)
+      #   - JDBC queries
+      #   - Kafka/RabbitMQ messaging
+      #   - And other common libraries
+      JAVA_TOOL_OPTIONS: "-javaagent:/app/libs/opentelemetry-javaagent-1.27.0.jar"
+      # Sets the OTLP (OpenTelemetry Protocol) endpoint for sending traces
+      #   Tempo (Grafana's tracing backend) listens on port 7 for OTLP
+      #   Traces will be sent to this endpoint in binary protobuf format
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4317
+      # Disables metrics export (only traces are enabled)
+      #   Why 'none'?
+      #   - Metrics are already handled separately by Prometheus (via Micrometer)
+      #   - Avoids duplicate metric collection
+      OTEL_METRICS_EXPORTER: none
+      # Disables logs export via OTLP
+      #   Why 'none'?
+      #   - Logs are typically sent directly to Loki/ELK
+      #   - Prevents mixing trace data with log pipelines
+      #   - Reduces overhead on the Tempo backend
+      OTEL_LOGS_EXPORTER: none
+
+
   #      SPRING_RABBITMQ_HOST: "rabbit"  # Configures the RabbitMQ host for Spring applications.
 
   microservice-configserver-config:
