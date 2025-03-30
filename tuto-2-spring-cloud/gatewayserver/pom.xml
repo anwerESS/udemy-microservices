@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.3</version>
+		<version>3.4.1</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>org.example</groupId>
@@ -77,6 +77,26 @@
 <!--			<groupId>org.springframework.boot</groupId>-->
 <!--			<artifactId>spring-boot-starter-data-redis-reactive</artifactId>-->
 <!--		</dependency>-->
+
+		<!--		Sets up default security configurations (Provides reactive security support when used with WebFlux).-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<!--		Validates OAuth2 access tokens (usually JWTs) from Authorization Servers (like Keycloak).-->
+		<!--		Provides:-->
+		<!--			JWT decoder (validates token signature via JWKS endpoint)-->
+		<!--			Authentication converter (extracts authorities from JWT claims)-->
+		<!--			BearerTokenAuthenticationFilter (processes Authorization: Bearer <token> headers)-->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-oauth2-resource-server</artifactId>
+		</dependency>
+		<!--		Provides low-level JWT/JOSE (JS Object Signing and Encryption) support. (Used by oauth2-resource-server to parse/validate JWTs.)-->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-oauth2-jose</artifactId>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>

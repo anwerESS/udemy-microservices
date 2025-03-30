@@ -32,6 +32,18 @@ spring:
       host: localhost      # Connect to Redis on localhost
       port: 6379           # Use the default Redis port
       timeout: 1s          # Wait up to 1 second for a response
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # The JWK (JSON Web Key) Set URI is used by Spring Security to fetch
+          # public keys for JWT (JSON Web Token) validation.
+          # Keycloak exposes this endpoint to provide cryptographic keys for token verification.
+          jwk-set-uri: "http://localhost:7080/realms/master/protocol/openid-connect/certs"
+          # Breakdown of the URI:
+          # - `http://localhost:7080`: Keycloak server URL (default port for Keycloak is 8080, adjust if needed).
+          # - `/realms/master`: The Keycloak realm (replace "master" with your realm name if different).
+          # - `/protocol/openid-connect/certs`: Standard OIDC endpoint for JWKS (JSON Web Key Set).
 
 ######## Management Endpoints:
 #
@@ -80,6 +92,8 @@ logging:
     org:
       example:
         gatewayserver: DEBUG  # Sets the logging level for the `org.example.gatewayserver` package to DEBUG.
+      springframework:
+        security: DEBUG
         # This enables detailed logging for the Gateway Server application, which is useful for debugging.
   # Log Pattern Configuration
   # -------------------------

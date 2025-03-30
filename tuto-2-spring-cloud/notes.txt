@@ -901,6 +901,75 @@ NOTES:
 			when we clic on the traceID and then on the "Tempo" button, it will open
 				look at ${ProjectFolder}/notes/grafana/img_22.png)
 
+	- setup keycloak (https://www.keycloak.org/getting-started/getting-started-docker)
+		* start keycloak (docker run -p 8070:8080 -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:26.1.4 start-dev)
+		* Go to the Keycloak Admin Console (http://localhost:8080/admin)
+
+	- Securing Gateway server as a Resource server
+		* create client (look at ${ProjectFolder}/notes/keycloak/img_00{1..3}.png)
+
+		* click on the link "OpenID Endpoint Configuration" (http://localhost:7080/realms/master/.well-known/openid-configuration)
+			(look at ${ProjectFolder}/notes/keycloak/img_00{4..5}.png)
+			the endpoint URL that my client application has to invoke to get an access token.
+			 	"token_endpoint": "http://localhost:8070/realms/master/protocol/openid-connect/token",
+
+			curl --location 'http://localhost:7080/realms/master/protocol/openid-connect/token' \
+			--header 'Content-Type: application/x-www-form-urlencoded' \
+			--data-urlencode 'grant_type=client_credentials' \
+			--data-urlencode 'client_id=eazybank-callcenter-cc' \
+			--data-urlencode 'client_secret=fvjejrUIZvGD2aT2wC4nx8PWw1mrfdD9' \
+			--data-urlencode 'scope=openid email profile'
+
+			{
+				"access_token": "eyJh.........d2aeg",
+				"expires_in": 60,
+				"refresh_expires_in": 0,
+				"token_type": "Bearer",
+				"id_token": "eyJh......HQ",
+				"not-before-policy": 0,
+				"scope": "openid profile email"
+			}
+		* there are some default scope that are assigned the created client
+			(look at ${ProjectFolder}/notes/keycloak/img_00{6..7}.png)
+		* add Security configuration in gateway SecurityConfig.java
+		* add dependencies in application.yml of gatewayserver
+			<!--		Sets up default security configurations (Provides reactive security support when used with WebFlux).-->
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-security</artifactId>
+			</dependency>
+			<!--		Validates OAuth2 access tokens (usually JWTs) from Authorization Servers (like Keycloak).-->
+			<!--		Provides:-->
+			<!--			JWT decoder (validates token signature via JWKS endpoint)-->
+			<!--			Authentication converter (extracts authorities from JWT claims)-->
+			<!--			BearerTokenAuthenticationFilter (processes Authorization: Bearer <token> headers)-->
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-oauth2-resource-server</artifactId>
+			</dependency>
+			<!--		Provides low-level JWT/JOSE (JS Object Signing and Encryption) support. (Used by oauth2-resource-server to parse/validate JWTs.)-->
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-oauth2-jose</artifactId>
+			</dependency>
+		</dependencies>
+		<dependencyManagement>
+			<dependencies>
+				<dependency>
+					<groupId>org.springframework.cloud</groupId>
+					<artifactId>spring-cloud-dependencies</artifactId>
+					<version>${spring-cloud.version}</version>
+					<type>pom</type>
+					<scope>import</scope>
+				</dependency>
+			</dependencies>
+		* add configs in application.yml of gatewayserver (configures Spring Boot as an OAuth2 resource server, enabling JWT validation using Keycloak's public key)
+			  security:
+                oauth2:
+                  resourceserver:
+                    jwt:
+                      jwk-set-uri: "http://localhost:7080/realms/master/protocol/openid-connect/certs"
+
 
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.
