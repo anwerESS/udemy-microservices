@@ -970,6 +970,15 @@ NOTES:
                     jwt:
                       jwk-set-uri: "http://localhost:7080/realms/master/protocol/openid-connect/certs"
 
+	- Implement Authorization inside Gateway server using Roles
+		* add ACCOUNTS role to the client eazybank-callcenter-cc
+			(look at ${ProjectFolder}/notes/keycloak/img_00{8..9}.png)
+		* access token before and after adding ACCOUNTS role to the client eazybank-callcenter-cc
+			http://localhost:7080/realms/master/protocol/openid-connect/token
+			(look at ${ProjectFolder}/notes/keycloak/img_01{0..1}.png)
+		* before adding Cards role to the client eazybank-callcenter-cc, the request returned 403 FORBIDDEN
+
+
 
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.

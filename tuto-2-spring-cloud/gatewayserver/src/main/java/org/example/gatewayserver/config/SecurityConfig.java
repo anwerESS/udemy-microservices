@@ -2,11 +2,17 @@ package org.example.gatewayserver.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import reactor.core.publisher.Mono;
 
 /**
  * Security configuration class for Spring WebFlux (reactive) applications.
@@ -31,16 +37,21 @@ public class SecurityConfig {
                                 .pathMatchers(HttpMethod.GET).permitAll()
 
                                 // Require authentication for these specific endpoints:
-                                .pathMatchers("/eazybank/accounts/**").authenticated()
-                                .pathMatchers("/eazybank/cards/**").authenticated()
-                                .pathMatchers("/eazybank/loans/**").authenticated()
+                                .pathMatchers("/eazybank/accounts/**").hasRole("ACCOUNTS")
+                                .pathMatchers("/eazybank/cards/**").hasRole("CARDS")
+                                .pathMatchers("/eazybank/loans/**").hasRole("LOANS")
                 )
                 // Configure OAuth2 Resource Server support for JWT validation
                 .oauth2ResourceServer(
                         oAuth2ResourceServerSpec -> oAuth2ResourceServerSpec
-                                // Enable JWT validation with default settings
-                                // (JWKS URI is configured in application.yml)
-                                .jwt(Customizer.withDefaults())
+//                                // Enable JWT validation with default settings
+//                                // (JWKS URI is configured in application.yml)
+//                                .jwt(Customizer.withDefaults())
+                                .jwt(jwtSpec -> jwtSpec
+                                        // Replace default JWT converter with our Keycloak-aware implementation
+                                        // This enables extraction of roles from Keycloak's JWT structure
+                                        .jwtAuthenticationConverter(grantedAuthoritiesExtractor())
+                                )
                 );
 
         // Disable CSRF protection (common in API gateways that use token-based auth)
@@ -48,6 +59,24 @@ public class SecurityConfig {
 
         // Build and return the security filter chain
         return serverHttpSecurity.build();
+    }
+
+
+    /**
+     * Creates a JWT authentication converter that extracts and converts Keycloak roles
+     * into Spring Security authorities.
+     *
+     * @return Converter that transforms JWT into AuthenticationToken with authorities
+     */
+    private Converter<Jwt, Mono<AbstractAuthenticationToken>> grantedAuthoritiesExtractor() {
+        // Create standard JWT authentication converter
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+
+        // Set custom role converter to handle Keycloak's role structure
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new KeycloakRoleConverter());
+
+        // Adapt the converter for reactive environment
+        return new ReactiveJwtAuthenticationConverterAdapter(jwtAuthenticationConverter);
     }
 }
 
