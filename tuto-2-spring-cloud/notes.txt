@@ -978,6 +978,13 @@ NOTES:
 			(look at ${ProjectFolder}/notes/keycloak/img_01{0..1}.png)
 		* before adding Cards role to the client eazybank-callcenter-cc, the request returned 403 FORBIDDEN
 
+	- Securing Gateway server using Authorization Code grant type flow (no code changes)
+		* create client
+			(look at ${ProjectFolder}/notes/keycloak/img_01{2..4}.png)
+		* create user
+			(look at ${ProjectFolder}/notes/keycloak/img_01{7..5}.png)
+		* add role to user & add (Auth URL, Access Token URL) in postman
+			(look at ${ProjectFolder}/notes/keycloak/img_01{8..9}.png)
 
 
 ANNOTATIONS:
