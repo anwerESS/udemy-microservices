@@ -990,6 +990,45 @@ NOTES:
 		* for exmple for accounts, only services wich are deployed in the same docker network can communicate with it at the port 8080
 		* in docker desktop the accounts service does not expose port  (look at ${ProjectFolder}/notes/keycloak/img_020.png)
 
+	- Develop message microservice using spring cloud functions
+		* add dependency in pom.xml
+		    <dependency>
+              <groupId>org.springframework.cloud</groupId>
+              <artifactId>spring-cloud-function-context</artifactId>
+            </dependency>
+            <dependency>
+              <groupId>org.springframework.cloud</groupId>
+              <artifactId>spring-cloud-starter-function-web</artifactId>
+            </dependency>
+
+        * add AccountsMsgDto and MessageFunctions
+		* expose the emailsms function with composing email and sms functions in docker-compose.yml
+			spring:
+			  application:
+			  cloud:
+				# Spring Cloud Function configuration
+				function:
+				  # Defines the function names that will process messages
+				  # This compose two functions: 'email' and 'sms'
+				  definition: email|sms
+		===> with the help of spring cloud functions, we exposed (email, sms and emailsms) endpoints without writing any controllers. example:
+			// Request
+				curl --location 'http://localhost:9010/email' \
+				--header 'Content-Type: application/json' \
+				--data-raw '{
+					"accountNumber": 1234545454,
+					"name": "Madan Reddy",
+					"email": "tutor@eazybytes",
+					"mobileNumber": "4354437687"
+				}'
+			// Response
+				{
+					"accountNumber": 1234545454,
+					"name": "Madan Reddy",
+					"email": "tutor@eazybytes",
+					"mobileNumber": "4354437687"
+				}
+
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.
 	@EnableFeignClients // enable Feign Clients

@@ -1,0 +1,15 @@
+# Server Configuration
+server:
+  # Defines the port on which the application will run
+  port: 9010
+
+# Spring Application Configuration
+spring:
+  application:
+    name: "message"
+  cloud:
+    # Spring Cloud Function configuration
+    function:
+      # Defines the function names that will process messages
+      # This compose two functions: 'email' and 'sms'
+      definition: email|sms
