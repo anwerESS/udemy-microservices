@@ -986,6 +986,9 @@ NOTES:
 		* add role to user & add (Auth URL, Access Token URL) in postman
 			(look at ${ProjectFolder}/notes/keycloak/img_01{8..9}.png)
 
+	- delete the exposed ports of (accounts, cards, loans)  in docker-compose.yml
+		* for exmple for accounts, only services wich are deployed in the same docker network can communicate with it at the port 8080
+		* in docker desktop the accounts service does not expose port  (look at ${ProjectFolder}/notes/keycloak/img_020.png)
 
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.

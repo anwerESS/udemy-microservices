@@ -1,5 +1,32 @@
 services:
 
+  keycloak:
+    # Official Keycloak Docker image from Red Hat's Quay.io registry.
+    # Version 26.0.0 (adjust to your desired version for stability/features).
+    image: quay.io/keycloak/keycloak:26.0.7
+    # Explicitly sets the container name (useful for debugging/linking).
+    container_name: keycloak
+    # Port mapping:
+    # - Host machine port `7080` → Container port `8080` (Keycloak's default HTTP port).
+    # Access via `http://localhost:7080` on the host.
+    ports:
+      - "7080:8080"
+    # Environment variables for initial setup:
+    # - `KEYCLOAK_ADMIN`: Default admin username.
+    # - `KEYCLOAK_ADMIN_PASSWORD`: Default admin password (change in production!).
+    environment:
+      KEYCLOAK_ADMIN: "admin"
+      KEYCLOAK_ADMIN_PASSWORD: "admin"
+    # Command to start Keycloak in development mode (`start-dev`):
+    # - Auto-creates a default realm, users, and TLS disabled (HTTP only).
+    # For production, use `start` with additional args (e.g., `--proxy edge` + HTTPS).
+    command: "start-dev"
+    # Extends configuration from an external YAML file (`common-config.yml`):
+    # - Shares settings like networks, volumes, or dependencies defined in `network-deploy-service`.
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
   # Loki Read Component - Handles log queries
   # Exposes port 3101 for external query requests
   # Connects to MinIO for log storage retrieval
@@ -281,7 +308,7 @@ services:
       service: microservice-db-config
 
   eurekaserver:
-    image: "anweress/eurekaserver:s11"
+    image: "anweress/eurekaserver:s12"
     container_name: eurekaserver-ms
     ports:
       - "8070:8070"
@@ -302,7 +329,7 @@ services:
       OTEL_SERVICE_NAME: "eurekaserver"
 
   configserver:
-    image: "anweress/configserver:s11"  # Uses a custom Docker image for the Config Server.
+    image: "anweress/configserver:s12"  # Uses a custom Docker image for the Config Server.
     container_name: configserver-ms  # Sets the container name to "configserver-ms".
     ports:
       - "8071:8071"  # Exposes port 8071 for the Config Server.
@@ -322,10 +349,10 @@ services:
       OTEL_SERVICE_NAME: "configserver"
 
   accounts:
-    image: "anweress/accounts:s11"  # Uses a custom Docker image for the Accounts microservice.
+    image: "anweress/accounts:s12"  # Uses a custom Docker image for the Accounts microservice.
     container_name: accounts-ms  # Sets the container name to "accounts-ms".
-    ports:
-      - "8080:8080"  # Exposes port 8080 for the Accounts microservice.
+#    ports:
+#      - "8080:8080"  # Exposes port 8080 for the Accounts microservice.
     depends_on:
       configserver:
         condition: service_healthy  # Ensures the Config Server is healthy before starting.
@@ -347,10 +374,10 @@ services:
       service: microservice-eureka-config  # Uses the `microservice-eureka-config` configuration.
 
   loans:
-    image: "anweress/loans:s11"  # Uses a custom Docker image for the Loans microservice.
+    image: "anweress/loans:s12"  # Uses a custom Docker image for the Loans microservice.
     container_name: loans-ms  # Sets the container name to "loans-ms".
-    ports:
-      - "8090:8090"  # Exposes port 8090 for the Loans microservice.
+#    ports:
+#      - "8090:8090"  # Exposes port 8090 for the Loans microservice.
     depends_on:
       eurekaserver:
         condition: service_healthy
@@ -372,10 +399,10 @@ services:
       service: microservice-eureka-config  # Uses the `microservice-eureka-config` configuration.
 
   cards:
-    image: "anweress/cards:s11"  # Uses a custom Docker image for the Cards microservice.
+    image: "anweress/cards:s12"  # Uses a custom Docker image for the Cards microservice.
     container_name: cards-ms  # Sets the container name to "cards-ms".
-    ports:
-      - "9000:9000"  # Exposes port 9000 for the Cards microservice.
+#    ports:
+#      - "9000:9000"  # Exposes port 9000 for the Cards microservice.
     depends_on:
       eurekaserver:
         condition: service_healthy
@@ -396,7 +423,7 @@ services:
       service: microservice-eureka-config  # Uses the `microservice-eureka-config` configuration.
 
   gatewayserver:
-    image: "anweress/gatewayserver:s11"
+    image: "anweress/gatewayserver:s12"
     container_name: gatewayserver-ms
     ports:
       - "8072:8072"
@@ -416,6 +443,13 @@ services:
 #      SPRING_DATA_REDIS_HOST: redis
 #      SPRING_DATA_REDIS_PORT: 6379
 #      SPRING_DATA_REDIS_TIMEOUT: 1s
+      # Keycloak JWT validation endpoint:
+      # - Fetches public keys to validate OAuth2 tokens.
+      # - Uses Keycloak's Docker service name (`keycloak`) as host (internal DNS).
+      # - Realm: `master` (change if using a custom realm).
+      # (the port below is 8080 and not 7080 because 7080 is the port exposed to the outside world and the service invoked with its name 'keycloak:8080')
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI: "http://keycloak:8080/realms/master/protocol/openid-connect/certs"
+
     extends:
       file: common-config.yml
       service: microservice-eureka-config
