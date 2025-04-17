@@ -45,10 +45,10 @@
       - Support for reactive and imperative programming models
       Required for any Spring Cloud Function application
     -->
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-function-context</artifactId>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.springframework.cloud</groupId>-->
+<!--      <artifactId>spring-cloud-function-context</artifactId>-->
+<!--    </dependency>-->
 
     <!--
       Spring Cloud Function Web Adapter:
@@ -61,14 +61,29 @@
       Note: Typically used for development/testing; remove in production
       if using just message-driven functions (like with RabbitMQ)
     -->
+<!--    <dependency>-->
+<!--      <groupId>org.springframework.cloud</groupId>-->
+<!--      <artifactId>spring-cloud-starter-function-web</artifactId>-->
+<!--    </dependency>-->
+
     <dependency>
       <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-function-web</artifactId>
+      <artifactId>spring-cloud-stream</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-stream-binder-rabbit</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-stream-test-binder</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -89,6 +104,16 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>com.google.cloud.tools</groupId>
+        <artifactId>jib-maven-plugin</artifactId>
+        <version>3.4.2</version>
+        <configuration>
+          <to>
+            <image>eazybytes/${project.artifactId}:s13</image>
+          </to>
+        </configuration>
       </plugin>
     </plugins>
   </build>

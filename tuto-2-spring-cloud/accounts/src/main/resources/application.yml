@@ -37,6 +37,26 @@ spring:
     openfeign:
       circuitbreaker:
         enabled: true # Enables the Circuit Breaker functionality for OpenFeign clients (wrap all Feign client calls with a Circuit Breaker)
+    # Spring Cloud Stream Bindings
+    # Spring Cloud Function Definition
+    function:
+      definition: updateCommunication  # Defines function for message processing
+    stream:
+      bindings:
+        # Input binding (consumes from 'communication-sent' queue)
+        updateCommunication-in-0:
+          destination: communication-sent  # RabbitMQ exchange/topic
+          group: ${spring.application.name}  # Consumer group for partitioning
+        # Output binding (publishes to 'send-communication' queue)
+        sendCommunication-out-0:
+          destination: send-communication  # Target exchange/topic
+  # RabbitMQ Connection Settings
+  rabbitmq:
+    host: localhost  # RabbitMQ server host
+    port: 5672  # AMQP protocol port
+    username: guest  # Default username (change in production)
+    password: guest  # Default password (change in production)
+    connection-timeout: 10s  # Connection timeout duration
 
 management:
   endpoints:

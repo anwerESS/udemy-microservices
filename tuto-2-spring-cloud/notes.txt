@@ -1029,6 +1029,102 @@ NOTES:
 					"mobileNumber": "4354437687"
 				}
 
+	- Async communication or event streaming using RabbitMQ(Update message & accounts to stream & process events)
+		* run rabbitmq and keycloak containers
+			+ docker run -p 5672:5672 -p 15672:15672 --name rabbitmq rabbitmq:4.0-management
+			+ docker run -p 7080:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:26.0.7 start-dev
+
+			+ connect to rabbitMQ dashboard (look at ${ProjectFolder}/notes/rabbitmq/img_001.png)
+				http://localhost:15672/
+			+  add dependencies in pom.xml (accounts & message)
+			|===> we deleted "spring-cloud-function-context" dependency beacause  spring-cloud-stream-binder-rabbit already adds spring cloud function related dependencies
+				<dependency>
+				  <groupId>org.springframework.cloud</groupId>
+				  <artifactId>spring-cloud-stream</artifactId>
+				</dependency>
+				<dependency>
+				  <groupId>org.springframework.cloud</groupId>
+				  <artifactId>spring-cloud-stream-binder-rabbit</artifactId>
+				</dependency>
+
+		* application.yml (accounts)
+			spring:
+			...
+			  cloud:
+			  ...
+				function:
+				  definition: updateCommunication  # Defines function for message processing
+				stream:
+				  bindings:
+					# Input binding (consumes from 'communication-sent' queue)
+					updateCommunication-in-0:
+					  destination: communication-sent  # RabbitMQ exchange/topic
+					  group: ${spring.application.name}  # Consumer group for partitioning
+					# Output binding (publishes to 'send-communication' queue)
+					sendCommunication-out-0:
+					  destination: send-communication  # Target exchange/topic
+		* application.yml (message)
+			spring:
+			...
+			  cloud:
+				# Spring Cloud Function configuration
+				function:
+				  # Defines the function names that will process messages
+				  # This compose two functions: 'email' and 'sms'
+				  definition: email|sms
+				# Spring Cloud Stream configuration for message processing
+				stream:
+				  bindings:
+					# Input binding configuration (for receiving messages)
+					emailsms-in-0:
+					  # The RabbitMQ exchange/topic where messages will be consumed from
+					  destination: send-communication
+					  # Consumer group for message partitioning and load balancing
+					  group: ${spring.application.name}
+					# Output binding configuration (for sending messages)
+					emailsms-out-0:
+					  # The RabbitMQ exchange/topic where processed messages will be published
+					  destination: communication-sent
+		* AccountsMsgDto.java
+			public record AccountsMsgDto(
+                    Long accountNumber, String name, String email, String mobileNumber
+            ){}
+        * AccountsServiceImp.java
+        	private final StreamBridge streamBridge;
+
+			private void sendCommunication(Accounts account, Customer customer) {
+				// Create message DTO with relevant account and customer information
+				var accountsMsgDto = new AccountsMsgDto(
+						account.getAccountNumber(),
+						customer.getName(),
+						customer.getEmail(),
+						customer.getMobileNumber()
+				);
+
+				log.info("Sending Communication request for the details: {}", accountsMsgDto);
+
+				// Send message to the configured output channel
+				// The binding name "sendCommunication-out-0" matches the configuration in application.yml
+				var result = streamBridge.send("sendCommunication-out-0", accountsMsgDto); // mentionned in application.yml (spring.cloud.stream.bindings.sendCommunication-out-0.destination=send-communication)
+
+				log.info("Is the Communication request successfully triggered ? : {}", result);
+			}
+		* AccountsFunctions.java
+			    public Consumer<Long> updateCommunication(IAccountsService accountsService) {
+                    return accountNumber -> {
+                        log.info("Updating Communication status for the account number : " + accountNumber.toString());
+                        accountsService.updateCommunicationStatus(accountNumber);
+                    };
+                }
+
+
+		* 2 exchanged have been created
+			(look at ${ProjectFolder}/notes/rabbitmq/img_002.png)
+		* 2 queues have been created
+			(look at ${ProjectFolder}/notes/rabbitmq/img_003.png)
+		* exchange-bindings-queuse
+			look at ${ProjectFolder}/notes/rabbitmq/img_00{4..7}.png)
+
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.
 	@EnableFeignClients // enable Feign Clients

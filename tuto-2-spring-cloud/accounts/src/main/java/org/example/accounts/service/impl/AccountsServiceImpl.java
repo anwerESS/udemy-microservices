@@ -3,6 +3,7 @@ package org.example.accounts.service.impl;
 import lombok.AllArgsConstructor;
 import org.example.accounts.constants.AccountsConstants;
 import org.example.accounts.dto.AccountsDto;
+import org.example.accounts.dto.AccountsMsgDto;
 import org.example.accounts.dto.CustomerDto;
 import org.example.accounts.entity.Accounts;
 import org.example.accounts.entity.Customer;
@@ -13,6 +14,9 @@ import org.example.accounts.mapper.CustomerMapper;
 import org.example.accounts.repository.AccountsRepository;
 import org.example.accounts.repository.CustomerRepository;
 import org.example.accounts.service.IAccountsService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,9 +27,12 @@ import java.util.Random;
 @AllArgsConstructor
 public class AccountsServiceImpl implements IAccountsService {
 
+    private static final Logger log = LoggerFactory.getLogger(AccountsServiceImpl.class);
+
 
     private AccountsRepository accountsRepository;
     private CustomerRepository customerRepository;
+    private final StreamBridge streamBridge;           // Spring Cloud Stream component for message publishing
 
     @Override
     public void createAccount(CustomerDto customerDto) {
@@ -40,7 +47,32 @@ public class AccountsServiceImpl implements IAccountsService {
 //        customer.setCreatedAt(LocalDateTime.now());
 
         Customer savedCustomer = customerRepository.save(customer);
-        accountsRepository.save(createNewAccount(savedCustomer));
+        Accounts savedAccount = accountsRepository.save(createNewAccount(savedCustomer));
+        sendCommunication(savedAccount, savedCustomer);
+
+    }
+
+    /**
+     * Sends communication about the newly created account via Spring Cloud Stream
+     * @param account The newly created account
+     * @param customer The customer associated with the account
+     */
+    private void sendCommunication(Accounts account, Customer customer) {
+        // Create message DTO with relevant account and customer information
+        var accountsMsgDto = new AccountsMsgDto(
+                account.getAccountNumber(),
+                customer.getName(),
+                customer.getEmail(),
+                customer.getMobileNumber()
+        );
+
+        log.info("Sending Communication request for the details: {}", accountsMsgDto);
+
+        // Send message to the configured output channel
+        // The binding name "sendCommunication-out-0" matches the configuration in application.yml
+        var result = streamBridge.send("sendCommunication-out-0", accountsMsgDto); // mentionned in application.yml (spring.cloud.stream.bindings.sendCommunication-out-0.destination=send-communication)
+
+        log.info("Is the Communication request successfully triggered ? : {}", result);
     }
 
     /**
@@ -117,6 +149,24 @@ public class AccountsServiceImpl implements IAccountsService {
         accountsRepository.deleteByCustomerId(customer.getCustomerId());
         customerRepository.deleteById(customer.getCustomerId());
         return true;
+    }
+
+    /**
+     * @param accountNumber - Long
+     * @return boolean indicating if the update of communication status is successful or not
+     */
+    @Override
+    public boolean updateCommunicationStatus(Long accountNumber) {
+        boolean isUpdated = false;
+        if(accountNumber !=null ){
+            Accounts accounts = accountsRepository.findById(accountNumber).orElseThrow(
+                    () -> new ResourceNotFoundException("Account", "AccountNumber", accountNumber.toString())
+            );
+            accounts.setCommunicationSw(true);
+            accountsRepository.save(accounts);
+            isUpdated = true;
+        }
+        return  isUpdated;
     }
 
 }
