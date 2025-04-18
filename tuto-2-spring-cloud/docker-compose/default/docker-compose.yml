@@ -141,7 +141,7 @@ services:
     # Configuration Mount
     volumes:
       - ../observability/tempo/tempo.yml:/etc/tempo-config.yml  # Mounts custom config file
-        # The mounted file contains all Tempo settings (storage, retention, etc.)
+      # The mounted file contains all Tempo settings (storage, retention, etc.)
       # Path is relative to the docker-compose file location
     # Shared Configuration
     extends:
@@ -158,7 +158,7 @@ services:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
     depends_on:
-        - gateway
+      - gateway
     entrypoint:
       - sh
       - -euc
@@ -250,32 +250,33 @@ services:
       file: common-config.yml
       service: network-deploy-service
 
-#  redis:
-#    image: redis
-#    ports:
-#      - "6379:6379"
-#    healthcheck:
-#      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
-#      timeout: 10s
-#      retries: 10
-#    extends:
-#      file: common-config.yml
-#      service: network-deploy-service
-#  rabbit:
-#    image: rabbitmq:3.13-management  # Uses the RabbitMQ image with the management plugin enabled.
-#    hostname: rabbitmq  # Sets the hostname of the container to "rabbitmq".
-#    ports:
-#      - "5672:5672"  # Exposes RabbitMQ's default AMQP port (5672) for messaging.
-#      - "15672:15672"  # Exposes RabbitMQ's management UI port (15672) for monitoring.
-#    healthcheck:
-#      test: rabbitmq-diagnostics check_port_connectivity  # Checks if RabbitMQ is reachable.
-#      interval: 20s  # Runs the health check every 10 seconds.
-#      timeout: 5s  # Sets a 5-second timeout for the health check.
-#      retries: 10  # Retries the health check up to 10 times before marking the service as unhealthy.
-#      start_period: 5s  # Waits 5 seconds before starting health checks (to allow RabbitMQ to initialize).
-#    extends:
-#      file: common-config.yml  # Extends configuration from the `common-config.yml` file.
-#      service: network-deploy-service  # Uses the `network-deploy-service` configuration.
+  #  redis:
+  #    image: redis
+  #    ports:
+  #      - "6379:6379"
+  #    healthcheck:
+  #      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
+  #      timeout: 10s
+  #      retries: 10
+  #    extends:
+  #      file: common-config.yml
+  #      service: network-deploy-service
+
+  rabbit:
+    image: rabbitmq:3.13-management  # Uses the RabbitMQ image with the management plugin enabled.
+    hostname: rabbitmq  # Sets the hostname of the container to "rabbitmq".
+    ports:
+      - "5672:5672"  # Exposes RabbitMQ's default AMQP port (5672) for messaging.
+      - "15672:15672"  # Exposes RabbitMQ's management UI port (15672) for monitoring.
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity  # Checks if RabbitMQ is reachable.
+      interval: 20s  # Runs the health check every 10 seconds.
+      timeout: 5s  # Sets a 5-second timeout for the health check.
+      retries: 10  # Retries the health check up to 10 times before marking the service as unhealthy.
+      start_period: 5s  # Waits 5 seconds before starting health checks (to allow RabbitMQ to initialize).
+    extends:
+      file: common-config.yml  # Extends configuration from the `common-config.yml` file.
+      service: network-deploy-service  # Uses the `network-deploy-service` configuration.
 
   accountsdb:
     container_name: accountsdb
@@ -308,7 +309,7 @@ services:
       service: microservice-db-config
 
   eurekaserver:
-    image: "anweress/eurekaserver:s12"
+    image: "anweress/eurekaserver:s13"
     container_name: eurekaserver-ms
     ports:
       - "8070:8070"
@@ -329,13 +330,13 @@ services:
       OTEL_SERVICE_NAME: "eurekaserver"
 
   configserver:
-    image: "anweress/configserver:s12"  # Uses a custom Docker image for the Config Server.
+    image: "anweress/configserver:s13"  # Uses a custom Docker image for the Config Server.
     container_name: configserver-ms  # Sets the container name to "configserver-ms".
     ports:
       - "8071:8071"  # Exposes port 8071 for the Config Server.
-#    depends_on:
-#      rabbit:
-#        condition: service_healthy  # Ensures the RabbitMQ service is healthy before starting.
+    #    depends_on:
+    #      rabbit:
+    #        condition: service_healthy  # Ensures the RabbitMQ service is healthy before starting.
     healthcheck:
       test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1"  # Checks if the Config Server is ready.
       interval: 20s  # Runs the health check every 10 seconds.
@@ -349,15 +350,17 @@ services:
       OTEL_SERVICE_NAME: "configserver"
 
   accounts:
-    image: "anweress/accounts:s12"  # Uses a custom Docker image for the Accounts microservice.
+    image: "anweress/accounts:s13"  # Uses a custom Docker image for the Accounts microservice.
     container_name: accounts-ms  # Sets the container name to "accounts-ms".
-#    ports:
-#      - "8080:8080"  # Exposes port 8080 for the Accounts microservice.
+    #    ports:
+    #      - "8080:8080"  # Exposes port 8080 for the Accounts microservice.
     depends_on:
       configserver:
         condition: service_healthy  # Ensures the Config Server is healthy before starting.
       eurekaserver:
-          condition: service_healthy
+        condition: service_healthy
+      rabbit:
+        condition: service_healthy
     healthcheck:
       test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
       interval: 20s
@@ -368,16 +371,18 @@ services:
       SPRING_APPLICATION_NAME: "accounts"  # Sets the Spring application name to "accounts".
       SPRING_DATASOURCE_URL: "jdbc:mysql://accountsdb:3306/accountsdb"
       OTEL_SERVICE_NAME: "accounts"
+      SPRING_RABBITMQ_HOST: "rabbit"
+
 
     extends:
       file: common-config.yml  # Extends configuration from the `common-config.yml` file.
       service: microservice-eureka-config  # Uses the `microservice-eureka-config` configuration.
 
   loans:
-    image: "anweress/loans:s12"  # Uses a custom Docker image for the Loans microservice.
+    image: "anweress/loans:s13"  # Uses a custom Docker image for the Loans microservice.
     container_name: loans-ms  # Sets the container name to "loans-ms".
-#    ports:
-#      - "8090:8090"  # Exposes port 8090 for the Loans microservice.
+    #    ports:
+    #      - "8090:8090"  # Exposes port 8090 for the Loans microservice.
     depends_on:
       eurekaserver:
         condition: service_healthy
@@ -399,10 +404,10 @@ services:
       service: microservice-eureka-config  # Uses the `microservice-eureka-config` configuration.
 
   cards:
-    image: "anweress/cards:s12"  # Uses a custom Docker image for the Cards microservice.
+    image: "anweress/cards:s13"  # Uses a custom Docker image for the Cards microservice.
     container_name: cards-ms  # Sets the container name to "cards-ms".
-#    ports:
-#      - "9000:9000"  # Exposes port 9000 for the Cards microservice.
+    #    ports:
+    #      - "9000:9000"  # Exposes port 9000 for the Cards microservice.
     depends_on:
       eurekaserver:
         condition: service_healthy
@@ -423,7 +428,7 @@ services:
       service: microservice-eureka-config  # Uses the `microservice-eureka-config` configuration.
 
   gatewayserver:
-    image: "anweress/gatewayserver:s12"
+    image: "anweress/gatewayserver:s13"
     container_name: gatewayserver-ms
     ports:
       - "8072:8072"
@@ -434,15 +439,15 @@ services:
         condition: service_healthy
       cards:
         condition: service_healthy
-#      redis:
-#        condition: service_healthy
+    #      redis:
+    #        condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "gatewayserver"
       OTEL_SERVICE_NAME: "gatewayserver"
-    #      SPRING_DATA_REDIS_CONNECT-TIMEOUT: 2s
-#      SPRING_DATA_REDIS_HOST: redis
-#      SPRING_DATA_REDIS_PORT: 6379
-#      SPRING_DATA_REDIS_TIMEOUT: 1s
+      #      SPRING_DATA_REDIS_CONNECT-TIMEOUT: 2s
+      #      SPRING_DATA_REDIS_HOST: redis
+      #      SPRING_DATA_REDIS_PORT: 6379
+      #      SPRING_DATA_REDIS_TIMEOUT: 1s
       # Keycloak JWT validation endpoint:
       # - Fetches public keys to validate OAuth2 tokens.
       # - Uses Keycloak's Docker service name (`keycloak`) as host (internal DNS).
@@ -453,6 +458,18 @@ services:
     extends:
       file: common-config.yml
       service: microservice-eureka-config
+
+  message:
+    image: "anweress/message:s13"
+    container_name: message-ms
+    depends_on:
+      rabbit:
+        condition: service_healthy
+    environment:
+      SPRING_RABBITMQ_HOST: "rabbit"
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
 
 networks:
   anweress:
