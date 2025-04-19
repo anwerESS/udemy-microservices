@@ -1,5 +1,27 @@
 services:
 
+
+  kafka:
+    image: docker.io/bitnami/kafka:3.9
+    ports:
+      - "9092:9092"
+    volumes:
+      - "kafka_data:/bitnami"
+    environment:
+      # KRaft settings
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      # Listeners
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
   keycloak:
     # Official Keycloak Docker image from Red Hat's Quay.io registry.
     # Version 26.0.0 (adjust to your desired version for stability/features).
@@ -309,7 +331,7 @@ services:
       service: microservice-db-config
 
   eurekaserver:
-    image: "anweress/eurekaserver:s13"
+    image: "anweress/eurekaserver:s14"
     container_name: eurekaserver-ms
     ports:
       - "8070:8070"
@@ -330,7 +352,7 @@ services:
       OTEL_SERVICE_NAME: "eurekaserver"
 
   configserver:
-    image: "anweress/configserver:s13"  # Uses a custom Docker image for the Config Server.
+    image: "anweress/configserver:s14"  # Uses a custom Docker image for the Config Server.
     container_name: configserver-ms  # Sets the container name to "configserver-ms".
     ports:
       - "8071:8071"  # Exposes port 8071 for the Config Server.
@@ -350,7 +372,7 @@ services:
       OTEL_SERVICE_NAME: "configserver"
 
   accounts:
-    image: "anweress/accounts:s13"  # Uses a custom Docker image for the Accounts microservice.
+    image: "anweress/accounts:s14"  # Uses a custom Docker image for the Accounts microservice.
     container_name: accounts-ms  # Sets the container name to "accounts-ms".
     #    ports:
     #      - "8080:8080"  # Exposes port 8080 for the Accounts microservice.
@@ -359,8 +381,8 @@ services:
         condition: service_healthy  # Ensures the Config Server is healthy before starting.
       eurekaserver:
         condition: service_healthy
-      rabbit:
-        condition: service_healthy
+#      rabbit:
+#        condition: service_healthy
     healthcheck:
       test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
       interval: 20s
@@ -371,7 +393,8 @@ services:
       SPRING_APPLICATION_NAME: "accounts"  # Sets the Spring application name to "accounts".
       SPRING_DATASOURCE_URL: "jdbc:mysql://accountsdb:3306/accountsdb"
       OTEL_SERVICE_NAME: "accounts"
-      SPRING_RABBITMQ_HOST: "rabbit"
+#      SPRING_RABBITMQ_HOST: "rabbit"
+      SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: "kafka:9092"
 
 
     extends:
@@ -379,7 +402,7 @@ services:
       service: microservice-eureka-config  # Uses the `microservice-eureka-config` configuration.
 
   loans:
-    image: "anweress/loans:s13"  # Uses a custom Docker image for the Loans microservice.
+    image: "anweress/loans:s14"  # Uses a custom Docker image for the Loans microservice.
     container_name: loans-ms  # Sets the container name to "loans-ms".
     #    ports:
     #      - "8090:8090"  # Exposes port 8090 for the Loans microservice.
@@ -404,7 +427,7 @@ services:
       service: microservice-eureka-config  # Uses the `microservice-eureka-config` configuration.
 
   cards:
-    image: "anweress/cards:s13"  # Uses a custom Docker image for the Cards microservice.
+    image: "anweress/cards:s14"  # Uses a custom Docker image for the Cards microservice.
     container_name: cards-ms  # Sets the container name to "cards-ms".
     #    ports:
     #      - "9000:9000"  # Exposes port 9000 for the Cards microservice.
@@ -428,7 +451,7 @@ services:
       service: microservice-eureka-config  # Uses the `microservice-eureka-config` configuration.
 
   gatewayserver:
-    image: "anweress/gatewayserver:s13"
+    image: "anweress/gatewayserver:s14"
     container_name: gatewayserver-ms
     ports:
       - "8072:8072"
@@ -460,16 +483,21 @@ services:
       service: microservice-eureka-config
 
   message:
-    image: "anweress/message:s13"
+    image: "anweress/message:s14"
     container_name: message-ms
     depends_on:
       rabbit:
         condition: service_healthy
     environment:
-      SPRING_RABBITMQ_HOST: "rabbit"
+#      SPRING_RABBITMQ_HOST: "rabbit"
+      SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: "kafka:9092"
     extends:
       file: common-config.yml
       service: network-deploy-service
+
+volumes:
+  kafka_data:
+    driver: local
 
 networks:
   anweress:
