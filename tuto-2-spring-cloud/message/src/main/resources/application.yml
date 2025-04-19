@@ -26,15 +26,19 @@ spring:
         emailsms-out-0:
           # The RabbitMQ exchange/topic where processed messages will be published
           destination: communication-sent
-  # RabbitMQ Connection Configuration
-  rabbitmq:
-    # Host address of the RabbitMQ server
-    host: localhost
-    # Port for RabbitMQ connection (default AMQP port is 5672)
-    port: 5672
-    # Default RabbitMQ username
-    username: guest
-    # Default RabbitMQ password
-    password: guest
-    # Connection timeout setting
-    connection-timeout: 10s
+      kafka:
+        binder:
+          brokers:
+            - localhost:9092
+#  # RabbitMQ Connection Configuration
+#  rabbitmq:
+#    # Host address of the RabbitMQ server
+#    host: localhost
+#    # Port for RabbitMQ connection (default AMQP port is 5672)
+#    port: 5672
+#    # Default RabbitMQ username
+#    username: guest
+#    # Default RabbitMQ password
+#    password: guest
+#    # Connection timeout setting
+#    connection-timeout: 10s

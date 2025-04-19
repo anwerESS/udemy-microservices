@@ -1125,6 +1125,11 @@ NOTES:
 		* exchange-bindings-queuse
 			look at ${ProjectFolder}/notes/rabbitmq/img_00{4..7}.png)
 
+	- Event Driven microservices using Kafka, Spring Cloud Functions & Stream
+		* thanks to spring cloud function and spring cloud streams the are no changes in the code(just replace rabbit with kafka depdency  and update application.yml of accounts and message)
+		* install a usefull jetbrains extension 'kafkalytic' (look at ${ProjectFolder}/notes/kafka/img_00{1..2}.png)
+
+
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.
 	@EnableFeignClients // enable Feign Clients
