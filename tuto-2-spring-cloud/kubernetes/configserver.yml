@@ -1,0 +1,96 @@
+# Kubernetes API version to use (apps/v1 is standard for Deployments)
+apiVersion: apps/v1
+# Type of Kubernetes resource we're creating (Deployment manages Pods)
+kind: Deployment
+# Metadata section - identifies the resource
+metadata:
+  # Unique name for this Deployment (used in commands like 'kubectl get deployments')
+  name: configserver-deployment
+  # Labels help organize and select resources (like tags)
+  labels:
+    app: configserver  # Labels this as belonging to the 'configserver' app
+# Specification of the Deployment's desired state
+spec:
+  # Number of identical Pods to run (1 for development, usually 2+ in production)
+  replicas: 1
+  # How the Deployment finds which Pods to manage
+  selector:
+    matchLabels:
+      app: configserver  # Matches Pods with this label
+  # Template for creating new Pods
+  template:
+    # Pod metadata (labels apply to the Pod, not the Deployment)
+    metadata:
+      labels:
+        app: configserver  # Same label as above for the selector to match
+    # Pod specification
+    spec:
+      # List of containers that will run in this Pod
+      containers:
+        - name: configserver  # Name for this container within the Pod
+          # Container image to use (custom Spring Cloud Config Server image)
+          image: eazybytes/configserver:s12
+          # Ports the container exposes (not the same as making them accessible)
+          ports:
+            - containerPort: 8071  # Port the app inside container listens on
+              # (Note: Just declaring this doesn't make the port accessible outside)
+
+---
+# Separates the Deployment from the Service definition (YAML document separator)
+# Service definition - makes the Deployment accessible
+apiVersion: v1  # Core Kubernetes API group for Services
+kind: Service  # Creates a networking abstraction for Pods
+metadata:
+  name: configserver  # Service name (used for DNS resolution)
+spec:
+  # Which Pods this Service should route traffic to
+  selector:
+    app: configserver  # Matches Pods with this label (same as Deployment)
+  # Service type (LoadBalancer provisions external cloud LB)
+  type: LoadBalancer  # Alternatives: ClusterIP (internal), NodePort (manual ports)
+  # Port configuration
+  ports:
+    - protocol: TCP  # Could also be UDP
+      port: 8071      # Port the Service exposes externally
+      targetPort: 8071  # Port on the Pods to forward traffic to
+
+
+
+
+
+#Key Concepts Explained:
+# 1. Deployment:
+#  Manages Pods (the smallest deployable units in Kubernetes)
+#  Ensures the specified number of Pods (replicas) are always running
+#  Handles rolling updates if you change the container image
+#
+# 2. Service:
+#  Provides stable IP/DNS name for Pods (since Pods are ephemeral)
+#   LoadBalancer type:
+#     In cloud environments (AWS/Azure/GCP), automatically creates an external load balancer
+#     Accessible at <external-ip>:8071
+#     Locally (Minikube/Docker Desktop), use kubectl get svc to find the exposed port
+#
+# 3. Ports:
+#   containerPort: Just documentation unless the image exposes it
+#   targetPort: Must match what your app actually listens on
+#   port: The abstracted Service port
+#
+# 4. Selector-Label System:
+#  The Service's selector matches the Pod's labels
+#  This is how Services find their Pods
+#
+# How This Works:
+#  1) The Deployment creates a Pod running your Config Server
+#  2)The Service creates a stable endpoint that:
+#     Routes traffic to the Pod
+#     Load balances if there are multiple replicas
+#
+#  Provides DNS name configserver (accessible within the cluster)
+
+# Checking Your Deployment:
+#
+#     kubectl get deployments  # Check Deployment status
+#     kubectl get pods         # See the actual Pod
+#     kubectl get services     # See Service and its external IP
+#     kubectl logs -f <pod-name>  # View container logs

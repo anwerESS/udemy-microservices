@@ -1130,6 +1130,163 @@ NOTES:
 		* install a usefull jetbrains extension 'kafkalytic' (look at ${ProjectFolder}/notes/kafka/img_00{1..2}.png)
 
 
+	* install helm (package manager for kubernates) (https://helm.sh/docs/intro/quickstart/)
+	* kubernates dashborad (https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/)
+	* The Dashboard UI is not deployed by default. To deploy it, run the following command:
+		# Add kubernetes-dashboard repository
+		helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+
+		# Deploy a Helm Release named "kubernetes-dashboard" using the kubernetes-dashboard chart
+		helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard
+
+		# enable access to the Dashboard
+		kubectl -n kubernetes-dashboard port-forward svc/kubernetes-dashboard-kong-proxy 8443:443
+
+	* create sample user (https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md)
+		+ Creating a Service Account
+			# dashboard-adminuser.yaml
+			apiVersion: v1
+			kind: ServiceAccount
+			metadata:
+			  name: admin-user
+			  namespace: kubernetes-dashboard
+
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/notes/kubernetes]
+			└──╼ $kubectl apply -f dashboard-adminuser.yaml
+			serviceaccount/admin-user created
+
+		+ Creating a ClusterRoleBinding
+			# dashboard-rolebinding.yaml
+			apiVersion: rbac.authorization.k8s.io/v1
+            kind: ClusterRoleBinding
+            metadata:
+              name: admin-user
+            roleRef:
+              apiGroup: rbac.authorization.k8s.io
+              kind: ClusterRole
+              name: cluster-admin
+            subjects:
+            - kind: ServiceAccount
+              name: admin-user
+              namespace: kubernetes-dashboard
+
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/notes/kubernetes]
+			└──╼ $kubectl apply -f dashboard-rolebinding.yaml
+			clusterrolebinding.rbac.authorization.k8s.io/admin-user created
+
+		+ Getting a Bearer Token for ServiceAccount
+
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/notes/kubernetes]
+			└──╼ $kubectl -n kubernetes-dashboard create token admin-user
+			eyJhbGciOiJSUzI1NiIsImtpZCI6ImZDay1PX2xMalVJc0NzU1E1OUV0YjNUYTRQd3N6bDdLQjJ1UXFOd1dLYUEifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNzQ1MTEyODM1LCJpYXQiOjE3NDUxMDkyMzUsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwianRpIjoiZDM5OTI1NzItZWNlOS00MTQ2LWJhMzYtN2IxNWM1YTc2NzJkIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsInNlcnZpY2VhY2NvdW50Ijp7Im5hbWUiOiJhZG1pbi11c2VyIiwidWlkIjoiY2ZkZmYxZTgtMGYyMS00OWE3LWIzZjktZTZiMTI2ZGNhYjQ0In19LCJuYmYiOjE3NDUxMDkyMzUsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDprdWJlcm5ldGVzLWRhc2hib2FyZDphZG1pbi11c2VyIn0.e92c4W2n1q6464D0nnsLA_6XNb9ko8vB15gl7m7AXqy1SOg7QNg9RinMzvsFwI3yFB_IlHbaJLYE4np6pO8r46O82Z-4ieGhfuyoocalfmrwlYganqRlg9pxI6ZtgqAZTdAHua-aBI53P6UnieJqfP79AG83o0hsNuI5JiXR8-ByCW4zBlvfgmBx7TDUN0XIP06G7iG1xCv_iip_IqSDa4vX5n3ck-IxS7gOLzkSBEur9xO6cIkLb7_wxaQ8d8QvrnuyCMg6OwV1i6u0WaW7Aj1PI0XilJlMmSBCZS7_8zp3fAN83MRcfkSm1qPamMGi3A9tktey4zgz3GDjHTbQOw
+
+		+ Getting a long-lived Bearer Token for ServiceAccount
+			# secret.yaml
+			apiVersion: v1
+            kind: Secret
+            metadata:
+              name: admin-user
+              namespace: kubernetes-dashboard
+              annotations:
+                kubernetes.io/service-account.name: "admin-user"
+            type: kubernetes.io/service-account-token
+
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/notes/kubernetes]
+			└──╼ $kubectl apply -f secret.yaml
+			secret/admin-user created
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/notes/kubernetes]
+			└──╼ $kubectl get secret admin-user -n kubernetes-dashboard -o jsonpath="{.data.token}" | base64 -d
+			eyJhbGciOiJSUzI1NiIsImtpZCI6ImZDay1PX2xMalVJc0NzU1E1OUV0YjNUYTRQd3N6bDdLQjJ1UXFOd1dLYUEifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi11c2VyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluLXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiJjZmRmZjFlOC0wZjIxLTQ5YTctYjNmOS1lNmIxMjZkY2FiNDQiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZXJuZXRlcy1kYXNoYm9hcmQ6YWRtaW4tdXNlciJ9.sffSLAWaMGi2CLOL7vMRfvpvvxrIBn30wYfq9xDUmuK5Fd8FMy-c9s1H_HIsTV6Vq4cTpA7jmY_lpz8HspVjHvovNWSJnGpVyLzxJzUWHxcSWusloFkASF4Ob1y4z_oFqbC_f2B0Qy1l3ZQ0MNvZuMVEvW6rj4T6EgXsCrfvom-h5_GYziODWvvtB4O_CeYJKKUU9vberV0mLs4-041q430JIEV3-vycJQ4T65LAdS_mhoTwBLeo7cNuS1C0Yo-9EGZNHNfnrJVur9FIodsO1wMYfthXnwTy9fjjZGpeXD3iLIZBSMF0QwJpNbskXcdzS4bBtGUKS1gEiHmzZfQQLA
+
+	* before deploying configserver (look at ${ProjectFolder}/notes/kubernetes/img_00{2..5}.png)
+		1)
+			┌─[anweress@Host-002]─[~/.config/vivaldi]
+			└──╼ $kubectl get deployments
+			No resources found in default namespace.
+
+			- Lists all Deployments (which manage Pods) in the current namespace.
+			- What the output means:
+				No resources found means you haven't created any Deployments yet (or they're in a different namespace).
+				The default namespace is empty.
+		2)
+			┌─[anweress@Host-002]─[~/.config/vivaldi]
+			└──╼ $kubectl get services
+			NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+			kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   26h
+			┌─[anweress@Host-002]─[~/.config/vivaldi]
+
+			- Lists all Services (network access points) in the current namespace.
+			- What the output means:
+				kubernetes is the default Service created by Kubernetes for the API server.
+					TYPE: ClusterIP: Only accessible inside the cluster.
+					CLUSTER-IP: 10.96.0.1: Internal IP address of the API server.
+					PORT(S): 443/TCP: Listens on port 443 (HTTPS).
+				No other Services (like configserver or keycloak) are running yet.
+		3)
+			┌─[anweress@Host-002]─[~/.config/vivaldi]
+			└──╼ $kubectl get replicaset
+			No resources found in default namespace.
+
+			- Lists ReplicaSets (which manage Pod replicas under the hood for Deployments).
+			- What the output means:
+				No resources found confirms no Deployments exist (since Deployments create ReplicaSets).
+
+	* deploy config server (look at ${ProjectFolder}/notes/kubernetes/img_00{6..7}.png)
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+		└──╼ $kubectl apply -f configserver.yml
+		deployment.apps/configserver-deployment created
+		service/configserver created
+
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+		└──╼ $kubectl get deployments
+		NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
+		configserver-deployment   1/1     1            1           22s
+
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+		└──╼ $kubectl get services
+		NAME           TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+		configserver   LoadBalancer   10.108.32.207   localhost     8071:31754/TCP   49s
+		kubernetes     ClusterIP      10.96.0.1       <none>        443/TCP          27h
+
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+		└──╼ $kubectl get replicaset
+		NAME                                 DESIRED   CURRENT   READY   AGE
+		configserver-deployment-6d7fb7b767   1         1         1       66s
+
+		+ test
+			curl http://localhost:8071/loans/prod
+
+			{
+              "name": "loans",
+              "profiles": [
+                "prod"
+              ],
+              "label": null,
+              "version": "5acacd724617ed0afebb955a92b3ac13ac96dfdf",
+              "state": "",
+              "propertySources": [
+                {
+                  "name": "https://github.com/eazybytes/eazybytes-config.git/loans-prod.yml",
+                  "source": {
+                    "build.version": "1.0",
+						...
+                  }
+                },
+                {
+                  "name": "https://github.com/eazybytes/eazybytes-config.git/loans.yml",
+                  "source": {
+                    "build.version": "3.0",
+                    "loans.message": "Welcome to EazyBank loans related local APIs ",
+					...
+                }
+              ]
+            }
+
+
+
+
+
+
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.
 	@EnableFeignClients // enable Feign Clients
