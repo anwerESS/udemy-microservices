@@ -29,7 +29,7 @@ spec:
       containers:
         - name: configserver  # Name for this container within the Pod
           # Container image to use (custom Spring Cloud Config Server image)
-          image: eazybytes/configserver:s12
+          image: anweress/configserver:s12
           # Ports the container exposes (not the same as making them accessible)
           ports:
             - containerPort: 8071  # Port the app inside container listens on

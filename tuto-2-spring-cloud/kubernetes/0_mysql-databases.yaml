@@ -1,0 +1,111 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: accountsdb
+spec:
+  selector:
+    app: accountsdb
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: accountsdb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: accountsdb
+  template:
+    metadata:
+      labels:
+        app: accountsdb
+    spec:
+      containers:
+        - name: accountsdb
+          image: mysql
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "root"
+            - name: MYSQL_DATABASE
+              value: "accountsdb"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loansdb
+spec:
+  selector:
+    app: loansdb
+  ports:
+    - protocol: TCP
+      port: 3307
+      targetPort: 3306
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loansdb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loansdb
+  template:
+    metadata:
+      labels:
+        app: loansdb
+    spec:
+      containers:
+        - name: loansdb
+          image: mysql
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "root"
+            - name: MYSQL_DATABASE
+              value: "loansdb"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cardsdb
+spec:
+  selector:
+    app: cardsdb
+  ports:
+    - protocol: TCP
+      port: 3308
+      targetPort: 3306
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cardsdb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cardsdb
+  template:
+    metadata:
+      labels:
+        app: cardsdb
+    spec:
+      containers:
+        - name: cardsdb
+          image: mysql
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "root"
+            - name: MYSQL_DATABASE
+              value: "cardsdb"

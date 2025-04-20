@@ -1,0 +1,31 @@
+# API version for Kubernetes ConfigMap resource
+apiVersion: v1
+# Type of Kubernetes resource (ConfigMap stores configuration data)
+kind: ConfigMap
+# Metadata section - identifies the ConfigMap
+metadata:
+  # Name of the ConfigMap (used when referencing it in Deployments)
+  name: eazybank-configmap
+# Data section - key-value pairs of configuration
+data:
+  # 1. Sets the active Spring profile to "prod" (production)
+  SPRING_PROFILES_ACTIVE: "prod"
+  # 2. Tells Spring applications where to find the Config Server
+  # Format: "configserver:<URL>"
+  SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
+  # 3. Eureka Server URL for service discovery
+  # All microservices will register with this Eureka server
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eurekaserver:8070/eureka/"
+  # 4-8. Application names for service registration
+  CONFIGSERVER_APPLICATION_NAME: "configserver"  # Config Server's registered name
+  EUREKA_APPLICATION_NAME: "eurekaserver"       # Eureka Server's registered name
+  ACCOUNTS_APPLICATION_NAME: "accounts"         # Accounts microservice name
+  LOANS_APPLICATION_NAME: "loans"               # Loans microservice name
+  CARDS_APPLICATION_NAME: "cards"               # Cards microservice name
+  GATEWAY_APPLICATION_NAME: "gatewayserver"     # API Gateway name
+  # 9-10. Keycloak admin credentials (for identity management)
+  KEYCLOAK_ADMIN: "admin"            # Default admin username
+  KEYCLOAK_ADMIN_PASSWORD: "admin"   # Default admin password (change in production!)
+  # 11. JWT validation endpoint for OAuth2 security
+  # Keycloak exposes this endpoint to validate access tokens
+  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI: "http://keycloak:7080/realms/master/protocol/openid-connect/certs"

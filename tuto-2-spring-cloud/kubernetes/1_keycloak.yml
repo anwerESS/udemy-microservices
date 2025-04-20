@@ -1,0 +1,65 @@
+# Kubernetes Deployment API version (apps/v1 is standard for workload management)
+apiVersion: apps/v1
+# Defines this as a Deployment resource (manages Pod lifecycle)
+kind: Deployment
+# Metadata section - identifies the Deployment
+metadata:
+  name: keycloak  # Unique name for this Deployment
+  labels:
+    app: keycloak  # Label for grouping/resource selection
+# Deployment specification - desired state
+spec:
+  replicas: 1  # Number of Pod replicas (1 for dev, minimum 2 for production)
+  # Label selector to identify which Pods belong to this Deployment
+  selector:
+    matchLabels:
+      app: keycloak  # Must match the Pod template's labels
+  # Pod template - blueprint for created Pods
+  template:
+    metadata:
+      labels:
+        app: keycloak  # Critical: Must match selector.matchLabels
+    # Pod specification
+    spec:
+      containers:
+        - name: keycloak  # Container name (visible in logs/commands)
+          # Official Keycloak image from Red Hat's registry
+          image: quay.io/keycloak/keycloak:26.0.7
+          # Start command (dev mode - not for production!)
+          args: ["start-dev"]  # Alternative: ["start", "--optimized"] for production
+          # Environment variables from ConfigMap
+          env:
+            - name: KEYCLOAK_ADMIN  # Admin username
+              valueFrom:
+                configMapKeyRef:
+                  name: eazybank-configmap  # References centralized config
+                  key: KEYCLOAK_ADMIN  # Points to 'admin' in ConfigMap
+            - name: KEYCLOAK_ADMIN_PASSWORD  # Admin password
+              valueFrom:
+                configMapKeyRef:
+                  name: eazybank-configmap
+                  key: KEYCLOAK_ADMIN_PASSWORD  # Points to 'admin' in ConfigMap
+          # Container ports
+          ports:
+            - name: http  # Port identifier
+              containerPort: 8080  # Keycloak's default HTTP port
+
+---
+# Service definition - exposes the Deployment
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak  # Service DNS name (accessible as http://keycloak:7080)
+  labels:
+    app: keycloak  # For organizational purposes
+# Service specification
+spec:
+  selector:
+    app: keycloak  # Routes traffic to Pods with this label
+  # Service type (LoadBalancer provisions external IP in cloud environments)
+  type: LoadBalancer  # Alternatives: ClusterIP (internal), NodePort (fixed port)
+  # Port mapping
+  ports:
+    - name: http  # Port name
+      port: 7080  # External port (accessed by clients)
+      targetPort: 8080  # Maps to container's port 8080

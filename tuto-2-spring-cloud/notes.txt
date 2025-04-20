@@ -1282,9 +1282,18 @@ NOTES:
               ]
             }
 
+	- Create environment variables inside Kubernetes Cluster using ConfigMap
+		* (look at ${ProjectFolder}/notes/kubernetes/img_00{8..9}.png)
 
+	- create environnement variables inside kubernetes cluster using ConfigMap
+		* defined in 2_configmaps.yaml
+		* (look at ${ProjectFolder}/notes/kubernetes/img_00{8..9}.png)
 
+	- create and package microservices with the tag 's12' and push it to dockerhub (to be used with kubernetes)
 
+	- create manifestfiles ( ${ProjectFolder}/kubernetes/*.yaml) and deploy files
+		* kubectl apply -f <file-anme>.yml
+		* (look at ${ProjectFolder}/notes/kubernetes/img_00{8..9}.png)
 
 
 ANNOTATIONS:
