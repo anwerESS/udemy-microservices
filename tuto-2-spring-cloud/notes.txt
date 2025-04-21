@@ -1489,7 +1489,102 @@ NOTES:
 			deployment.apps/gatewayserver-deployment rolled back
 
 
+	- Kubernetes service types
+		* ClusterIP vs NodePort vs LoadBalancer
+			1. ClusterIP (✅ Default type)
+				What it does:
+					Exposes the service internally within the Kubernetes cluster. It gets a virtual IP that other services or pods in the same cluster can use to reach it.
+				Use case:
+					When internal communication between microservices is needed — for example, a frontend talking to a backend or a backend talking to a database.
+				Accessible from:
+					Inside the cluster only.
+			2. NodePort
+				What it does:
+					Exposes the service on a static port (30000–32767) on each node in the cluster. External users can reach the service by accessing <NodeIP>:<NodePort>.
+				Use case:
+					For simple external access, especially during development, testing, or when using an external load balancer or reverse proxy (like NGINX or HAProxy).
+				Accessible from:
+					Outside the cluster via <Node IP>:<NodePort>
+				Limitations:
+					Port range is restricted (30000–32767)
+					Not very flexible for production-grade traffic management
+			3. LoadBalancer
+				What it does:
+					Provisions a cloud provider's external load balancer (like AWS ELB, Azure LB, GCP LB) and assigns it a public IP to expose the service directly to the internet.
+				Use case:
+					When you need production-ready, external access to your services — e.g., exposing a frontend or public API to users over the internet.
+				Accessible from:
+					Internet (public IP assigned by cloud provider)
+				Requires:
+					Cloud environment (doesn’t work on bare metal without external LB setup like MetalLB)
 
+			| Type         | Exposed To              | Use Case                            | Default? |
+            |--------------|-------------------------|-------------------------------------|----------|
+            | ClusterIP    | Inside cluster only     | Internal microservice communication | Yes      |
+            | NodePort     | Outside via Node IP     | Dev/test external access            | No       |
+            | LoadBalancer | Public internet (cloud) | Production external access          | No       |
+
+		* before updating 5_accounts.yml and changing service type from 'LoadBalancer' to 'NodePort'
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud]
+            └──╼ $kubectl get service
+            NAME            TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+            accounts        LoadBalancer   10.99.138.53     localhost     8080:32280/TCP   14h
+            accountsdb      ClusterIP      10.108.242.204   <none>        3306/TCP         14h
+            cards           LoadBalancer   10.108.132.78    localhost     9000:31197/TCP   14h
+            cardsdb         ClusterIP      10.101.82.238    <none>        3308/TCP         14h
+            configserver    LoadBalancer   10.102.135.103   localhost     8071:32554/TCP   14h
+            eurekaserver    LoadBalancer   10.102.67.127    localhost     8070:31434/TCP   14h
+            gatewayserver   LoadBalancer   10.101.219.235   localhost     8072:32636/TCP   14h
+            keycloak        LoadBalancer   10.96.173.196    localhost     7080:30263/TCP   14h
+            kubernetes      ClusterIP      10.96.0.1        <none>        443/TCP          46h
+            loans           LoadBalancer   10.98.29.51      localhost     8090:30734/TCP   14h
+            loansdb         ClusterIP      10.106.83.60     <none>        3307/TCP         14h
+
+			curl --location 'http://localhost:8080/api/contact-info' \
+			// OUTPUT
+			{
+				"message": "Welcome to EazyBank accounts related (production) APIs ",
+				"contactDetails": {
+					"name": "Reine Aishwarya - Product Owner",
+					"email": "aishwarya@eazybank.com"
+				},
+				"onCallSupport": [
+					"(453) 392-4829",
+					"(236) 203-0384"
+				]
+			}
+
+		* after updating 5_accounts.yml
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+			└──╼ $kubectl apply -f 5_accounts.yml
+			deployment.apps/accounts-deployment configured
+			service/accounts configured
+
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+			└──╼ $kubectl get service
+			NAME            TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+			accounts        NodePort       10.99.138.53     <none>        8080:32280/TCP   15h
+			...
+
+			curl --location 'http://localhost:8080/api/contact-info' \
+			// OUTPUT
+			Error: connect ECONNREFUSED 127.0.0.1:8080
+
+			|==> now to invoke accounts, we should invoke it the port 32280
+
+			curl --location 'http://localhost:32280/api/contact-info' \
+			// OUTPUT
+			{
+				"message": "Welcome to EazyBank accounts related (production) APIs ",
+				"contactDetails": {
+					"name": "Reine Aishwarya - Product Owner",
+					"email": "aishwarya@eazybank.com"
+				},
+				"onCallSupport": [
+					"(453) 392-4829",
+					"(236) 203-0384"
+				]
+			}
 
 
 ANNOTATIONS:
