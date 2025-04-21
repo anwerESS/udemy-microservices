@@ -1295,6 +1295,113 @@ NOTES:
 		* kubectl apply -f <file-anme>.yml
 		* (look at ${ProjectFolder}/notes/kubernetes/img_00{8..9}.png)
 
+	- Automatic Self healing inside Kubernetes cluster
+		* initially
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+			└──╼ $kubectl get replicaset
+			NAME                                  DESIRED   CURRENT   READY   AGE
+			accounts-deployment-785dbc87fd        1         1         1       82m
+			accounts-deployment-7d987b97bd        0         0         0       105m
+			accountsdb-fc878fddf                  1         1         1       98m
+			cards-deployment-7d8488fb67           0         0         0       92m
+			cards-deployment-cb9cd768f            1         1         1       79m
+			cardsdb-859ffb5f4                     1         1         1       98m
+			configserver-deployment-5469477f65    1         1         1       107m
+			eurekaserver-deployment-595cd577b4    1         1         1       105m
+			gatewayserver-deployment-5b6958f97b   1         1         1       92m
+			keycloak-68dc7d678b                   1         1         1       107m
+			loans-deployment-6fdb5dc56c           0         0         0       92m
+			loans-deployment-7bd55bd89c           1         1         1       79m
+			loansdb-676d88ffdb                    1         1         1       98m
+
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+			└──╼ $kubectl get pods
+			NAME                                        READY   STATUS    RESTARTS   AGE
+			accounts-deployment-785dbc87fd-qkm28        1/1     Running   0          83m
+			accountsdb-fc878fddf-lj6g9                  1/1     Running   0          99m
+			cards-deployment-cb9cd768f-bmtfz            1/1     Running   0          80m
+			cardsdb-859ffb5f4-2nz9j                     1/1     Running   0          99m
+			configserver-deployment-5469477f65-zjp7b    1/1     Running   0          107m
+			eurekaserver-deployment-595cd577b4-tc9bv    1/1     Running   0          106m
+			gatewayserver-deployment-5b6958f97b-255pr   1/1     Running   0          92m
+			keycloak-68dc7d678b-ts6s2                   1/1     Running   0          107m
+			loans-deployment-7bd55bd89c-6pj5x           1/1     Running   0          79m
+			loansdb-676d88ffdb-cdxpj                    1/1     Running   0          99m
+
+		* after updating 5_accounts.yml and update replicas '2' instaed of '1' (this will create 2 pods of accounts)
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+			└──╼ $kubectl apply -f 5_accounts.yml
+			deployment.apps/accounts-deployment configured
+			service/accounts unchanged
+
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+			└──╼ $kubectl get replicaset
+			NAME                                  DESIRED   CURRENT   READY   AGE
+			accounts-deployment-785dbc87fd        2         2         2       85m
+			accounts-deployment-7d987b97bd        0         0         0       108m
+			accountsdb-fc878fddf                  1         1         1       101m
+			cards-deployment-7d8488fb67           0         0         0       94m
+			cards-deployment-cb9cd768f            1         1         1       81m
+			cardsdb-859ffb5f4                     1         1         1       101m
+			configserver-deployment-5469477f65    1         1         1       109m
+			eurekaserver-deployment-595cd577b4    1         1         1       108m
+			gatewayserver-deployment-5b6958f97b   1         1         1       94m
+			keycloak-68dc7d678b                   1         1         1       109m
+			loans-deployment-6fdb5dc56c           0         0         0       94m
+			loans-deployment-7bd55bd89c           1         1         1       81m
+			loansdb-676d88ffdb                    1         1         1       101m
+
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+			└──╼ $kubectl get pods
+			NAME                                        READY   STATUS    RESTARTS   AGE
+			accounts-deployment-785dbc87fd-ksfm9        1/1     Running   0          16s
+			accounts-deployment-785dbc87fd-qkm28        1/1     Running   0          85m
+			accountsdb-fc878fddf-lj6g9                  1/1     Running   0          101m
+			cards-deployment-cb9cd768f-bmtfz            1/1     Running   0          82m
+			cardsdb-859ffb5f4-2nz9j                     1/1     Running   0          101m
+			configserver-deployment-5469477f65-zjp7b    1/1     Running   0          109m
+			eurekaserver-deployment-595cd577b4-tc9bv    1/1     Running   0          108m
+			gatewayserver-deployment-5b6958f97b-255pr   1/1     Running   0          94m
+			keycloak-68dc7d678b-ts6s2                   1/1     Running   0          109m
+			loans-deployment-7bd55bd89c-6pj5x           1/1     Running   0          81m
+			loansdb-676d88ffdb-cdxpj                    1/1     Running   0          101m
+
+		* after deleting one of accounts pod
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+			└──╼ $kubectl delete pod accounts-deployment-785dbc87fd-qkm28
+			pod "accounts-deployment-785dbc87fd-qkm28" deleted
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+			└──╼ $kubectl get pods
+			NAME                                        READY   STATUS    RESTARTS   AGE
+			accounts-deployment-785dbc87fd-cmcb5        1/1     Running   0          22s
+			accounts-deployment-785dbc87fd-ksfm9        1/1     Running   0          10m
+			...
+
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+			└──╼ $kubectl get replicaset
+			NAME                                  DESIRED   CURRENT   READY   AGE
+			accounts-deployment-785dbc87fd        2         2         2       96m
+			accounts-deployment-7d987b97bd        0         0         0       119m
+			accountsdb-fc878fddf                  1         1         1       112m
+
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+            └──╼ $kubectl get events --sort-by=.metadata.creationTimestamp
+            LAST SEEN   TYPE     REASON              OBJECT                                      MESSAGE
+            13m         Normal   Scheduled           pod/accounts-deployment-785dbc87fd-ksfm9    Successfully assigned default/accounts-deployment-785dbc87fd-ksfm9 to docker-desktop
+            13m         Normal   SuccessfulCreate    replicaset/accounts-deployment-785dbc87fd   Created pod: accounts-deployment-785dbc87fd-ksfm9
+            13m         Normal   ScalingReplicaSet   deployment/accounts-deployment              Scaled up replica set accounts-deployment-785dbc87fd to 2 from 1
+            13m         Normal   Pulled              pod/accounts-deployment-785dbc87fd-ksfm9    Container image "anweress/accounts:s12" already present on machine
+            13m         Normal   Created             pod/accounts-deployment-785dbc87fd-ksfm9    Created container accounts
+            13m         Normal   Started             pod/accounts-deployment-785dbc87fd-ksfm9    Started container accounts
+            3m19s       Normal   Scheduled           pod/accounts-deployment-785dbc87fd-cmcb5    Successfully assigned default/accounts-deployment-785dbc87fd-cmcb5 to docker-desktop
+            3m19s       Normal   Killing             pod/accounts-deployment-785dbc87fd-qkm28    Stopping container accounts
+            3m19s       Normal   SuccessfulCreate    replicaset/accounts-deployment-785dbc87fd   Created pod: accounts-deployment-785dbc87fd-cmcb5
+            3m18s       Normal   Pulled              pod/accounts-deployment-785dbc87fd-cmcb5    Container image "anweress/accounts:s12" already present on machine
+            3m18s       Normal   Created             pod/accounts-deployment-785dbc87fd-cmcb5    Created container accounts
+            3m18s       Normal   Started             pod/accounts-deployment-785dbc87fd-cmcb5    Started container accounts
+
+
+
 
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.
