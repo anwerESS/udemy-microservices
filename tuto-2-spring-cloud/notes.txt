@@ -1400,6 +1400,95 @@ NOTES:
             3m18s       Normal   Created             pod/accounts-deployment-785dbc87fd-cmcb5    Created container accounts
             3m18s       Normal   Started             pod/accounts-deployment-785dbc87fd-cmcb5    Started container accounts
 
+	- scale replicas with another approach (without updantion the 5_account.yml file)
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+        └──╼ $kubectl scale deployment accounts-deployment --replicas=1
+        deployment.apps/accounts-deployment scaled
+
+	- rollout an image without downtime and without updating 8_gatewayserver.yml (we will push the 's11' tag from docker hub)
+		* describe a pod
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+			└──╼ $kubectl describe pod gatewayserver-deployment-5b6958f97b-255pr
+			Name:             gatewayserver-deployment-5b6958f97b-255pr
+			Namespace:        default
+			Priority:         0
+			Service Account:  default
+			Node:             docker-desktop/192.168.65.9
+			Start Time:       Mon, 21 Apr 2025 00:22:59 +0200
+			Labels:           app=gatewayserver
+							  pod-template-hash=5b6958f97b
+			Annotations:      <none>
+			Status:           Running
+			IP:               10.1.0.34
+			IPs:
+			  IP:           10.1.0.34
+			Controlled By:  ReplicaSet/gatewayserver-deployment-5b6958f97b
+			Containers:
+			  gatewayserver:
+				Container ID:   docker://54876dff54ca01209508d30509865f3a58f52453239d5907ff9336262a221f22
+				Image:          anweress/gatewayserver:s12
+				Image ID:       docker-pullable://anweress/gatewayserver@sha256:ca88e90a88d1ddedeb88784f7b0888bfcc8ab06ec86ac9f2b57f0f26ac908653
+				Port:           8072/TCP
+				Host Port:      0/TCP
+				State:          Running
+				  Started:      Mon, 21 Apr 2025 00:23:03 +0200
+				Ready:          True
+				Restart Count:  0
+				Environment:
+				  SPRING_APPLICATION_NAME:                                <set to the key 'GATEWAY_APPLICATION_NAME' of config map 'eazybank-configmap'>                               Optional: false
+				  SPRING_PROFILES_ACTIVE:                                 <set to the key 'SPRING_PROFILES_ACTIVE' of config map 'eazybank-configmap'>                                 Optional: false
+					...
+
+		* apply rollout
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud]
+			└──╼ $kubectl set image deployment gatewayserver-deployment gatewayserver=eazybytes/gatewayserver:s11 --record
+			Flag --record has been deprecated, --record will be removed in the future
+			deployment.apps/gatewayserver-deployment image updated
+
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud]
+			└──╼ $kubectl get events --sort-by=.metadata.creationTimestamp
+			LAST SEEN   TYPE     REASON              OBJECT                                           MESSAGE
+			33m         Normal   ScalingReplicaSet   deployment/accounts-deployment                   Scaled up replica set accounts-deployment-785dbc87fd to 2 from 1
+			...
+			16m         Normal   Killing             pod/accounts-deployment-785dbc87fd-cmcb5         Stopping container accounts
+			95s         Normal   Scheduled           pod/gatewayserver-deployment-78cc55d669-mb5h7    Successfully assigned default/gatewayserver-deployment-78cc55d669-mb5h7 to docker-desktop
+			95s         Normal   Pulling             pod/gatewayserver-deployment-78cc55d669-mb5h7    Pulling image "eazybytes/gatewayserver:s11"
+			95s         Normal   SuccessfulCreate    replicaset/gatewayserver-deployment-78cc55d669   Created pod: gatewayserver-deployment-78cc55d669-mb5h7
+			95s         Normal   ScalingReplicaSet   deployment/gatewayserver-deployment              Scaled up replica set gatewayserver-deployment-78cc55d669 to 1
+			89s         Normal   Pulled              pod/gatewayserver-deployment-78cc55d669-mb5h7    Successfully pulled image "eazybytes/gatewayserver:s11" in 6s (6s including waiting). Image size: 173480510 bytes.
+			89s         Normal   Created             pod/gatewayserver-deployment-78cc55d669-mb5h7    Created container gatewayserver
+			88s         Normal   Killing             pod/gatewayserver-deployment-5b6958f97b-255pr    Stopping container gatewayserver
+			88s         Normal   SuccessfulDelete    replicaset/gatewayserver-deployment-5b6958f97b   Deleted pod: gatewayserver-deployment-5b6958f97b-255pr
+			88s         Normal   Started             pod/gatewayserver-deployment-78cc55d669-mb5h7    Started container gatewayserver
+			88s         Normal   ScalingReplicaSet   deployment/gatewayserver-deployment              Scaled down replica set gatewayserver-deployment-5b6958f97b to 0 from 1
+
+		* test the Accounts_POST_NoAuth (beacuse herewe rollout the image s11 before implementing auth)
+			curl --location 'http://localhost:8072/eazybank/accounts/api/create' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "name": "Madan Reddy",
+                "email": "tutor@eazybytes",
+                "mobileNumber": "4354437687"
+            }'
+            // OUTPUT
+            {
+                "statusCode": "201",
+                "statusMsg": "Account created successfully"
+            }
+
+		* show the history of deployment fot gateway server and rollback the 's12'
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud]
+			└──╼ $kubectl rollout history deployment gatewayserver-deployment
+			deployment.apps/gatewayserver-deployment
+			REVISION  CHANGE-CAUSE
+			1         <none>
+			2         kubectl set image deployment gatewayserver-deployment gatewayserver=eazybytes/gatewayserver:s11 --record=true
+
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud]
+			└──╼ $kubectl rollout undo deployment gatewayserver-deployment --to-revision=1
+			deployment.apps/gatewayserver-deployment rolled back
+
+
 
 
 
