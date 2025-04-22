@@ -1586,6 +1586,87 @@ NOTES:
 				]
 			}
 
+	- installing a sample helm chart (https://helm.sh/docs/intro/install/)
+		* fisrt, we should check that local kubernetes cluster is up
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+			└──╼ $kubectl get service
+			NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+			kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   3d5h
+
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+            └──╼ $helm ls	# we don't have any chart installed in kubernetes cluster
+            NAME    NAMESPACE       REVISION        UPDATED STATUS  CHART   APP VERSION
+		* helm search (https://helm.sh/docs/intro/install/)
+		* hemp install (https://helm.sh/docs/intro/install/)
+			+ add repo
+				┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+				└──╼ $helm repo add bitnami https://charts.bitnami.com/bitnami
+				"bitnami" has been added to your repositories
+			+ install wordpress (look at ${ProjectFolder}/notes/helm/img_001.png)
+				┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+				└──╼ $helm install happy-panda bitnami/wordpress
+				NAME: happy-panda
+				LAST DEPLOYED: Tue Apr 22 22:04:12 2025
+				NAMESPACE: default
+				STATUS: deployed
+				REVISION: 1
+				TEST SUITE: None
+				...
+			+ run wordpress (look at ${ProjectFolder}/notes/helm/img_00{2..3}.png)
+
+				┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+                └──╼ $
+                   export SERVICE_IP=$(kubectl get svc --namespace default happy-panda-wordpress --template "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}")
+                   echo "WordPress URL: http://$SERVICE_IP/"
+                   echo "WordPress Admin URL: http://$SERVICE_IP/admin"
+
+                WordPress URL: http://localhost/
+                WordPress Admin URL: http://localhost/admin
+
+				(look at ${ProjectFolder}/notes/helm/img_004.png)
+
+				| Service Name                 | Type             | Purpose                                     |
+				|------------------------------|------------------|---------------------------------------------|
+				| happy-panda-mariadb          | ClusterIP        | Internal database access                    |
+				| happy-panda-mariadb-headless | ClusterIP (None) | Pod discovery for StatefulSet               |
+				| happy-panda-wordpress        | LoadBalancer     | Exposed WordPress instance to outside users |
+				| kubernetes                   | ClusterIP        | Internal access to Kubernetes API server    |
+
+		* helm architecture (look at ${ProjectFolder}/notes/helm/img_00{2..3}.png)
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+			└──╼ $helm env
+			HELM_BIN="helm"
+			HELM_BURST_LIMIT="100"
+			HELM_CACHE_HOME="/home/anweress/.cache/helm"
+			HELM_CONFIG_HOME="/home/anweress/.config/helm"
+			HELM_DATA_HOME="/home/anweress/.local/share/helm"
+			HELM_DEBUG="false"
+			HELM_KUBEAPISERVER=""
+			HELM_KUBEASGROUPS=""
+			HELM_KUBEASUSER=""
+			HELM_KUBECAFILE=""
+			HELM_KUBECONTEXT=""
+			HELM_KUBEINSECURE_SKIP_TLS_VERIFY="false"
+			HELM_KUBETLS_SERVER_NAME=""
+			HELM_KUBETOKEN=""
+			HELM_MAX_HISTORY="10"
+			HELM_NAMESPACE="default"
+			HELM_PLUGINS="/home/anweress/.local/share/helm/plugins"
+			HELM_QPS="0.00"
+			HELM_REGISTRY_CONFIG="/home/anweress/.config/helm/registry/config.json"
+			HELM_REPOSITORY_CACHE="/home/anweress/.cache/helm/repository"
+			HELM_REPOSITORY_CONFIG="/home/anweress/.config/helm/repositories.yaml"
+
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+			└──╼ $helm ls
+			NAME            NAMESPACE       REVISION        UPDATED                                         STATUS          CHART                   APP VERSION
+			happy-panda     default         1               2025-04-22 22:04:12.901758124 +0200 CEST        deployed        wordpress-24.2.2        6.7.2
+
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/kubernetes]
+            └──╼ $helm uninstall happy-panda
+            release "happy-panda" uninstalled
+
+
 
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.
