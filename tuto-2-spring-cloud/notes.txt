@@ -1666,6 +1666,51 @@ NOTES:
             └──╼ $helm uninstall happy-panda
             release "happy-panda" uninstalled
 
+	- create eazybank-common chart
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm]
+        └──╼ $helm create eazybank-common
+        Creating eazybank-common
+
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm]
+		└──╼ $tree .
+
+		└── eazybank-common
+			├── charts
+			├── Chart.yaml
+			├── templates
+			│	 ├── deployment.yaml
+			│	 ├── _helpers.tpl
+			│	 ├── hpa.yaml
+			│	 ├── ingress.yaml
+			│	 ├── NOTES.txt
+			│	 ├── serviceaccount.yaml
+			│	 ├── service.yaml
+			│	 └── tests
+			│	       └── test-connection.yaml
+			└── values.yaml
+
+	- create accounts chart
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm/eazybank-services]
+		└──╼ $helm create accounts
+		Creating accounts
+
+	- compile chart
+		* now the chart folder 'chart' is empty beacuse the chart is not compiled yet
+		*
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm/eazybank-services/accounts]
+			└──╼ $helm dependency build
+			Hang tight while we grab the latest from your chart repositories...
+			...Successfully got an update from the "kubernetes-dashboard" chart repository
+			...Successfully got an update from the "bitnami" chart repository
+			Update Complete. ⎈Happy Helming!⎈
+			Saving 1 charts
+			Deleting outdated charts
+
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm/eazybank-services/accounts]
+			└──╼ $tree charts/
+				charts/
+				└── eazybank-common-0.1.0.tgz
+
 
 
 ANNOTATIONS:

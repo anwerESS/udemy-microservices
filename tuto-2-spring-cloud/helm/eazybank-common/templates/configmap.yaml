@@ -1,0 +1,16 @@
+{{- define "common.configmap" -}}  # Defines a reusable template named "common.configmap"
+apiVersion: v1  # Kubernetes API version for ConfigMap
+kind: ConfigMap  # Resource type (stores configuration data)
+metadata:
+  name: {{ .Values.global.configMapName }}  # ConfigMap name from global values
+data:  # Key-value configuration pairs
+  SPRING_PROFILES_ACTIVE: {{ .Values.global.activeProfile }}  # Spring active profile (dev/prod)
+  SPRING_CONFIG_IMPORT: {{ .Values.global.configServerURL }}  # URL to Spring Config Server
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: {{ .Values.global.eurekaServerURL }}  # Eureka service discovery URL
+  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI: {{ .Values.global.keyCloakURL }}  # Keycloak JWT validation endpoint
+  JAVA_TOOL_OPTIONS: {{ .Values.global.openTelemetryJavaAgent }}  # Java agent for OpenTelemetry
+  OTEL_EXPORTER_OTLP_ENDPOINT: {{ .Values.global.otelExporterEndPoint }}  # OpenTelemetry collector endpoint
+  OTEL_METRICS_EXPORTER: {{ .Values.global.otelMetricsExporter }}  # Metrics exporter type
+  OTEL_LOGS_EXPORTER: {{ .Values.global.otelLogsExporter }}  # Logs exporter type
+  SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: {{ .Values.global.kafkaBrokerURL }}  # Kafka brokers connection string
+{{- end -}}  # Ends template definition

@@ -1,0 +1,15 @@
+{{- define "common.service" -}}  # Reusable service template
+apiVersion: v1  # Kubernetes API version
+kind: Service  # Resource type
+metadata:
+  name: {{ .Values.serviceName }}  # Service name from values
+spec:
+  selector:
+    app: {{ .Values.appLabel }}  # Selects Pods with this label
+  type: {{ .Values.service.type }}  # Service type (ClusterIP/LoadBalancer/NodePort)
+  ports:
+    - name: http  # Port name
+      protocol: TCP  # Protocol type
+      port: {{ .Values.service.port }}  # External port number
+      targetPort: {{ .Values.service.targetPort }}  # Container port to forward to
+{{- end -}}  # Ends template
