@@ -1711,6 +1711,69 @@ NOTES:
 				charts/
 				└── eazybank-common-0.1.0.tgz
 
+	- create helm charts for the remaining microservices
+
+	- build microservices in dev-env
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm/eazybank-services/environnement]
+		└──╼ $helm create dev-env
+		Creating dev-env
+
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm/environnement]
+		└──╼ $cd dev-env/
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm/environnement/dev-env]
+		└──╼ $helm dependencies build
+		Hang tight while we grab the latest from your chart repositories...
+		...Successfully got an update from the "kubernetes-dashboard" chart repository
+		...Successfully got an update from the "bitnami" chart repository
+		Update Complete. ⎈Happy Helming!⎈
+		Saving 8 charts
+		Deleting outdated charts
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm/environnement/dev-env]
+		└──╼ $ls charts/
+		accounts-0.1.0.tgz  cards-0.1.0.tgz  configserver-0.1.0.tgz  eazybank-common-0.1.0.tgz  eurekaserver-0.1.0.tgz  gatewayserver-0.1.0.tgz  loans-0.1.0.tgz  message-0.1.0.tgz
+
+	- helm template
+		* The command helm template . is a Helm command that renders Kubernetes manifests from your Helm chart templates without actually installing them in a Kubernetes cluster
+
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm/environnement/dev-env]
+		└──╼ $helm template .
+		---
+		# Source: dev-env/templates/configmap.yaml
+		# Defines a reusable template named "common.configmap"
+		apiVersion: v1  # Kubernetes API version for ConfigMap
+		kind: ConfigMap  # Resource type (stores configuration data)
+		metadata:
+		  name: eazybankdev-configmap  # ConfigMap name from global values
+		data:  # Key-value configuration pairs
+		  SPRING_PROFILES_ACTIVE: default  # Spring active profile (dev/prod)
+		  SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/  # URL to Spring Config Server
+		  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/  # Eureka service discovery URL
+		  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI: http://keycloak.default.svc.cluster.local:80/realms/master/protocol/openid-connect/certs  # Keycloak JWT validation endpoint
+		  JAVA_TOOL_OPTIONS: -javaagent:/app/libs/opentelemetry-javaagent-2.11.0.jar  # Java agent for OpenTelemetry
+		  OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo-grafana-tempo-distributor:4318  # OpenTelemetry collector endpoint
+		  OTEL_METRICS_EXPORTER: none  # Metrics exporter type
+		  OTEL_LOGS_EXPORTER: none  # Logs exporter type
+		  SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: kafka-controller-0.kafka-controller-headless.default.svc.cluster.local:9092  # Kafka brokers connection string
+		---
+		# Source: dev-env/charts/accounts/templates/service.yaml
+		# Reusable service template
+		apiVersion: v1  # Kubernetes API version
+		kind: Service  # Resource type
+		metadata:
+		  name: accounts  # Service name from values
+		spec:
+		  selector:
+			app: accounts  # Selects Pods with this label
+		  type: ClusterIP  # Service type (ClusterIP/LoadBalancer/NodePort)
+		  ports:
+			- name: http  # Port name
+			  protocol: TCP  # Protocol type
+			  port: 8080  # External port number
+			  targetPort: 8080  # Container port to forward to
+		---
+		# Source: dev-env/charts/cards/templates/service.yaml
+		...
+
 
 
 ANNOTATIONS:
