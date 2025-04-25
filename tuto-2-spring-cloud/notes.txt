@@ -1964,6 +1964,117 @@ NOTES:
 					kafka-controller-0.kafka-controller-headless.default.svc.cluster.local:9092
 		* test (look at ${ProjectFolder}/notes/helm/img_009.png)
 
+	- Install Prometheus in Kubernetes Cluster using Helm Chart
+		* update values.yaml
+		  additionalScrapeConfigs:
+			- enabled: FALSE
+			+ enabled: true
+			- type: EXTERNAL
+			+ type: internal
+
+			// Add jobList
+			  jobList: [
+				{
+					"job_name": "configserver",
+					"metrics_path": "/actuator/prometheus",
+					"static_configs": [
+					  {
+						"targets": ["configserver:8071"]
+					  }
+					]
+			   },
+			   {
+					"job_name": "eurekaserver",
+					"metrics_path": "/actuator/prometheus",
+					"static_configs": [
+					  {
+						"targets": ["eurekaserver:8070"]
+					  }
+					]
+			   },
+			   {
+					"job_name": "accounts",
+					"metrics_path": "/actuator/prometheus",
+					"static_configs": [
+					  {
+						"targets": ["accounts:8080"]
+					  }
+					]
+			   },
+			   {
+					"job_name": "loans",
+					"metrics_path": "/actuator/prometheus",
+					"static_configs": [
+					  {
+						"targets": ["loans:8090"]
+					  }
+					]
+			   },
+			   {
+					"job_name": "cards",
+					"metrics_path": "/actuator/prometheus",
+					"static_configs": [
+					  {
+						"targets": ["cards:9000"]
+					  }
+					]
+			   },
+			   {
+					"job_name": "gatewayserver",
+					"metrics_path": "/actuator/prometheus",
+					"static_configs": [
+					  {
+						"targets": ["gatewayserver:8072"]
+					  }
+					]
+			   }
+			  ]
+		* install prometheus
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm/kube-prometheus]
+			└──╼ $helm dependencies build  && cd .. && helm install prometheus kube-prometheus
+			Hang tight while we grab the latest from your chart repositories...
+			...Successfully got an update from the "kubernetes-dashboard" chart repository
+			...Successfully got an update from the "bitnami" chart repository
+			Update Complete. ⎈Happy Helming!⎈
+			Saving 4 charts
+			...
+			APP VERSION: 0.79.2
+			Did you know there are enterprise versions of the Bitnami catalog? For enhanced secure software supply chain features, unlimited pulls from Docker, LTS support, or application customization, see Bitnami Premium or Tanzu Application Catalog. See https://www.arrow.com/globalecs/na/vendors/bitnami for more information.
+			** Please be patient while the chart is being deployed **
+			Watch the Prometheus Operator Deployment status using the command:
+				kubectl get deploy -w --namespace default -l app.kubernetes.io/name=kube-prometheus-operator,app.kubernetes.io/instance=prometheus
+			Watch the Prometheus StatefulSet status using the command:
+				kubectl get sts -w --namespace default -l app.kubernetes.io/name=kube-prometheus-prometheus,app.kubernetes.io/instance=prometheus
+			Prometheus can be accessed via port "9090" on the following DNS name from within your cluster:
+				prometheus-kube-prometheus-prometheus.default.svc.cluster.local
+			To access Prometheus from outside the cluster execute the following commands:
+				echo "Prometheus URL: http://127.0.0.1:9090/"
+				kubectl port-forward --namespace default svc/prometheus-kube-prometheus-prometheus 9090:9090
+			Watch the Alertmanager StatefulSet status using the command:
+				kubectl get sts -w --namespace default -l app.kubernetes.io/name=kube-prometheus-alertmanager,app.kubernetes.io/instance=prometheus
+			Alertmanager can be accessed via port "9093" on the following DNS name from within your cluster:
+				prometheus-kube-prometheus-alertmanager.default.svc.cluster.local
+			To access Alertmanager from outside the cluster execute the following commands:
+				echo "Alertmanager URL: http://127.0.0.1:9093/"
+				kubectl port-forward --namespace default svc/prometheus-kube-prometheus-alertmanager 9093:9093
+			WARNING: There are "resources" sections in the chart not set. Using "resourcesPreset" is not recommended for production. For production installations, please set the following values according to your workload needs:
+			  - alertmanager.resources
+			  - blackboxExporter.resources
+			  - operator.resources
+			  - prometheus.resources
+			  - prometheus.thanos.resources
+			+info https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm]
+            └──╼ $                          echo "Prometheus URL: http://127.0.0.1:9090/"
+                                            kubectl port-forward --namespace default svc/prometheus-kube-prometheus-prometheus 9090:9090
+            Prometheus URL: http://127.0.0.1:9090/
+            Forwarding from 127.0.0.1:9090 -> 9090
+            Forwarding from [::1]:9090 -> 9090
+		* test (look at ${ProjectFolder}/notes/helm/img_010.png)
+
+
+
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.
 	@EnableFeignClients // enable Feign Clients
