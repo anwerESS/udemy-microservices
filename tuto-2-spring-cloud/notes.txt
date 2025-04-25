@@ -1774,6 +1774,116 @@ NOTES:
 		# Source: dev-env/charts/cards/templates/service.yaml
 		...
 
+	- download all bitnami helm charts (https://github.com/bitnami/charts/tree/main/bitnami)
+
+	-
+		* copy the keyclock to helm folder and change the service.type in 'values.yaml' from ClusterIP to LoadBalancer
+		* add 'password' value to the auth.adminPassword key
+			auth:
+              ## @param auth.adminUser Keycloak administrator user
+              ##
+              adminUser: user
+              ## @param auth.adminPassword Keycloak administrator password for the new user
+              ##
+              adminPassword: "password"
+              ## @param auth.existingSecret Existing secret containing Keycloak admin password
+
+		* install keycloak helm chart
+			+ build dependencies
+				┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm]
+				└──╼ $cd keycloak/
+				┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm/keycloak]
+				└──╼ $helm dependencies build
+				Hang tight while we grab the latest from your chart repositories...
+				...Successfully got an update from the "kubernetes-dashboard" chart repository
+				...Successfully got an update from the "bitnami" chart repository
+				Update Complete. ⎈Happy Helming!⎈
+				Saving 2 charts
+				Downloading postgresql from repo oci://registry-1.docker.io/bitnamicharts
+				Pulled: registry-1.docker.io/bitnamicharts/postgresql:16.4.2
+				Digest: sha256:95573304e1245ac6e9a039117a77092de007a68ae6bb895de3e5a7736d799f8f
+				Downloading common from repo oci://registry-1.docker.io/bitnamicharts
+				Pulled: registry-1.docker.io/bitnamicharts/common:2.29.0
+				Digest: sha256:54aca71f74b2ac492f2c869804f1d3c23303b7778d3903d7fc5ea4ca087d76e6
+				Deleting outdated charts
+
+			+ install keycloak
+				┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm/keycloak]
+				└──╼ $cd .. ; helm install keycloak keycloak # helm install <chart-name> <folder>
+				NAME: keycloak
+				LAST DEPLOYED: Fri Apr 25 07:15:34 2025
+				NAMESPACE: default
+				STATUS: deployed
+				REVISION: 1
+				TEST SUITE: None
+				NOTES:
+				CHART NAME: keycloak
+				CHART VERSION: 24.4.3
+				APP VERSION: 26.0.8
+
+				Did you know there are enterprise versions of the Bitnami catalog? For enhanced secure software supply chain features, unlimited pulls from Docker, LTS support, or application customization, see Bitnami Premium or Tanzu Application Catalog. See https://www.arrow.com/globalecs/na/vendors/bitnami for more information.
+
+				** Please be patient while the chart is being deployed **
+
+				Keycloak can be accessed through the following DNS name from within your cluster:
+
+					keycloak.default.svc.cluster.local (port 80)
+
+				To access Keycloak from outside the cluster execute the following commands:
+
+				1. Get the Keycloak URL by running these commands:
+
+				  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+						You can watch its status by running 'kubectl get --namespace default svc -w keycloak'
+
+					export HTTP_SERVICE_PORT=$(kubectl get --namespace default -o jsonpath="{.spec.ports[?(@.name=='http')].port}" services keycloak)
+					export SERVICE_IP=$(kubectl get svc --namespace default keycloak -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+
+					echo "http://${SERVICE_IP}:${HTTP_SERVICE_PORT}/"
+
+				2. Access Keycloak using the obtained URL.
+				3. Access the Administration Console using the following credentials:
+
+				  echo Username: user
+				  echo Password: $(kubectl get secret --namespace default keycloak -o jsonpath="{.data.admin-password}" | base64 -d)
+
+				WARNING: There are "resources" sections in the chart not set. Using "resourcesPreset" is not recommended for production. For production installations, please set the following values according to your workload needs:
+				  - resources
+				+info https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+
+				┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm]
+				└──╼ $    export HTTP_SERVICE_PORT=$(kubectl get --namespace default -o jsonpath="{.spec.ports[?(@.name=='http')].port}" services keycloak)
+					export SERVICE_IP=$(kubectl get svc --namespace default keycloak -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+
+					echo "http://${SERVICE_IP}:${HTTP_SERVICE_PORT}/"
+				http://:80/
+				┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm]
+
+			NOTE: in my case, the port is not 80, but 8080 (for some reason i had to forward the port)
+				┌──[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm]
+				└──╼ $kubectl get svc
+				NAME                     TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+				keycloak                 LoadBalancer   10.99.18.18     <pending>     80:32486/TCP   4m33s
+				keycloak-headless        ClusterIP      None            <none>        8080/TCP       4m33s
+				keycloak-postgresql      ClusterIP      10.108.37.148   <none>        5432/TCP       4m33s
+				keycloak-postgresql-hl   ClusterIP      None            <none>        5432/TCP       4m33s
+				kubernetes               ClusterIP      10.96.0.1       <none>        443/TCP        27h
+				┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm]
+
+				┌─[✗]─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm]
+				└──╼ $kubectl port-forward svc/keycloak 8008:80
+				Forwarding from 127.0.0.1:8008 -> 8080
+				Forwarding from [::1]:8008 -> 8080
+
+		* show user and password (look at ${ProjectFolder}/notes/helm/img_007.png)
+			┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud]
+			└──╼ $  echo Username: user
+			  echo Password: $(kubectl get secret --namespace default keycloak -o jsonpath="{.data.admin-password}" | base64 -d)
+			Username: user
+			Password: password
+
+
+
 
 
 ANNOTATIONS:
