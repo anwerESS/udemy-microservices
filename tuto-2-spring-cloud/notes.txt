@@ -2222,6 +2222,75 @@ NOTES:
 
         * now the container are running (look at ${ProjectFolder}/notes/helm/img_012.png)
 
+	- Demo of helm upgrade command
+		* change the image tag in eazybank-services/loans in values.yaml
+		image:
+          repository: anweress/loans
+          -tag: s14
+          +tag: s11
+
+          ┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm]
+          └──╼ $cd environments/prod-env/ && helm dependencies build
+          Hang tight while we grab the latest from your chart repositories...
+          ...Successfully got an update from the "kubernetes-dashboard" chart repository
+          ...Successfully got an update from the "bitnami" chart repository
+          Update Complete. ⎈Happy Helming!⎈
+          Saving 8 charts
+          Deleting outdated charts
+
+          ┌─[✗]─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm/environments/prod-env]
+          └──╼ $cd .. && helm upgrade eazybank prod-env
+          Release "eazybank" has been upgraded. Happy Helming!
+          NAME: eazybank
+          LAST DEPLOYED: Sat Apr 26 08:33:15 2025
+          NAMESPACE: default
+          STATUS: deployed
+          REVISION: 2
+          TEST SUITE: None
+
+	- Demo of helm upgrade command (rollback to a previous revision)
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm/environments]
+		└──╼ $helm history eazybank
+		REVISION        UPDATED                         STATUS          CHART           APP VERSION     DESCRIPTION
+		1               Sat Apr 26 08:08:38 2025        superseded      prod-env-0.1.0  1.0.0           Install complete
+		2               Sat Apr 26 08:33:15 2025        deployed        prod-env-0.1.0  1.0.0           Upgrade complete
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm/environments]
+		└──╼ $helm rollback eazybank 1
+		Rollback was a success! Happy Helming!
+
+	- Demo of helm uninstall command
+		Rollback was a success! Happy Helming!
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm/environments]
+		└──╼ $helm ls
+		NAME            NAMESPACE       REVISION        UPDATED                                         STATUS          CHART                   APP VERSION
+		eazybank        default         3               2025-04-26 08:37:38.486696364 +0200 CEST        deployed        prod-env-0.1.0          1.0.0
+		grafana         default         1               2025-04-26 07:16:15.715269258 +0200 CEST        deployed        grafana-11.4.2          11.4.0
+		kafka           default         1               2025-04-25 12:52:03.901073679 +0200 CEST        deployed        kafka-31.2.0            3.9.0
+		keycloak        default         1               2025-04-25 07:15:34.522631093 +0200 CEST        deployed        keycloak-24.4.3         26.0.8
+		loki            default         1               2025-04-25 19:45:02.248832265 +0200 CEST        deployed        grafana-loki-4.7.1      3.3.2
+		prometheus      default         1               2025-04-25 19:32:07.547205317 +0200 CEST        deployed        kube-prometheus-10.2.3  0.79.2
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm/environments]
+		└──╼ $helm uninstall eazybank
+		release "eazybank" uninstalled
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm/environments]
+		└──╼ $helm uninstall grafana
+		release "grafana" uninstalled
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm/environments]
+		└──╼ $helm uninstall kafka
+		release "kafka" uninstalled
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm/environments]
+		└──╼ $helm uninstall keycloak
+		release "keycloak" uninstalled
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm/environments]
+		└──╼ $helm uninstall loki
+		release "loki" uninstalled
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm/environments]
+		└──╼ $helm uninstall prometheus
+		release "prometheus" uninstalled
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm/environments]
+		└──╼ $helm ls
+		NAME    NAMESPACE       REVISION        UPDATED STATUS  CHART   APP VERSION
+		┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-2-spring-cloud/helm/environments]
 
 
 ANNOTATIONS:
