@@ -1,0 +1,131 @@
+
+
+# install the discovery server
+┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-3-spring-cloud-k8s/kubernetes]
+└──╼ $kubectl apply -f kubernetes-discoveryserver.yml
+service/spring-cloud-kubernetes-discoveryserver created
+serviceaccount/spring-cloud-kubernetes-discoveryserver created
+rolebinding.rbac.authorization.k8s.io/spring-cloud-kubernetes-discoveryserver:view created
+role.rbac.authorization.k8s.io/namespace-reader created
+deployment.apps/spring-cloud-kubernetes-discoveryserver-deployment created
+
+(look at ${ProjectFolder}/notes/img_001.png)
+
+# copy the following service folders from s14 and helm folder (to be modifier later) of s16
+accounts  configserver  message cards gatewayserver  loans
+
+#before we must verify that everything is ok in kubernetes cluster
+(look at ${ProjectFolder}/notes/img_002.png)
+
+# update pom.xml
+	replace (<image>anweress/${project.artifactId}:s14</image>) with (<image>anweress/${project.artifactId}:s17</image>)
+
+	<dependency>
+		<groupId>org.springframework.cloud</groupId>
+		<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+	</dependency>
+
+	<dependency>
+		<groupId>org.springframework.cloud</groupId>
+		<artifactId>spring-cloud-starter-kubernetes-discoveryclient</artifactId>
+	</dependency>
+
+# add the @EnableDiscoveryClient in the following files
+accountsApplication  cardsApplication    gatewayserverApplication  loansApplication
+
+delete all props related to eureka in (application.yml) files
+
+add
+  cloud:
+    # Kubernetes integration settings
+    kubernetes:
+      # Service discovery configuration
+      discovery:
+        # When true, discovers services across ALL Kubernetes namespaces (not just the current one)
+        all-namespaces: true
+
+add the url param for @FeignClient
+	example:
+	- @FeignClient(name = "cards", fallback = CardsFallback.class)
+	+ @FeignClient(name = "cards", url ="http://cards:9000", fallback = CardsFallback.class)
+
+update the GatewayserverApplication
+	example uri("lb://CARDS")) ===> uri("http://cards:9000"))
+
+	public RouteLocator eazyBankRouteConfig(RouteLocatorBuilder routeLocatorBuilder) {
+		return routeLocatorBuilder.routes()
+						.route(p -> p
+								.path("/eazybank/accounts/**")
+								.filters( f -> f.rewritePath("/eazybank/accounts/(?<segment>.*)","/${segment}")
+										.addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+										.circuitBreaker(config -> config.setName("accountsCircuitBreaker")
+												.setFallbackUri("forward:/contactSupport")))
+								.uri("http://accounts:8080"))
+					.route(p -> p
+							.path("/eazybank/loans/**")
+							.filters( f -> f.rewritePath("/eazybank/loans/(?<segment>.*)","/${segment}")
+									.addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+									.retry(retryConfig -> retryConfig.setRetries(3)
+											.setMethods(HttpMethod.GET)
+											.setBackoff(Duration.ofMillis(100),Duration.ofMillis(1000),2,true)))
+							.uri("http://loans:8090"))
+					.route(p -> p
+							.path("/eazybank/cards/**")
+							.filters( f -> f.rewritePath("/eazybank/cards/(?<segment>.*)","/${segment}")
+									.addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+									.requestRateLimiter(config -> config.setRateLimiter(redisRateLimiter())
+											.setKeyResolver(userKeyResolver())))
+							.uri("http://cards:9000")).build();
+	}
+
+
+build of images with the version s17
+
+	cd accounts; mvn compile jib:dockerBuild; cd ..;
+	cd cards; mvn compile jib:dockerBuild; cd ..;
+	cd configserver; mvn compile jib:dockerBuild; cd ..;
+	cd loans; mvn compile jib:dockerBuild; cd ..;
+	cd gatewayserver; mvn compile jib:dockerBuild; cd ..;
+	cd message; mvn compile jib:dockerBuild; cd ..;
+
+Install Keeclock, kafka, graphana, prometeus inside kubernetes kluster
+
+delete.../helm/eazybank-services/eurekaserver/
+
+update values.yaml replacing (tag: s14) to (tag: s17)
+
+incerase the replicaCount: to 2 of account
+
+delete all eureka props in chart.yaml
+
+build dependencies in all envs (example dev-env)
+
+┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-3-spring-cloud-k8s/helm]
+└──╼ $cd environments/dev-env/
+┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-3-spring-cloud-k8s/helm/environments/dev-env]
+└──╼ $helm dependencies build
+Error: the lock file (Chart.lock) is out of sync with the dependencies file (Chart.yaml). Please update the dependencies        configserver-0.1.0.tgz
+┌─[✗]─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-3-spring-cloud-k8s/helm/environments/dev-env]
+└──╼ $rm -rf Chart.lock
+┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-3-spring-cloud-k8s/helm/environments/dev-env]
+└──╼ $helm dependencies build
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "kubernetes-dashboard" chart repository
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 7 charts
+Deleting outdated charts
+┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-3-spring-cloud-k8s/helm/environments/dev-env]
+
+
+install all microservices
+
+┌─[anweress@Host-002]─[~/Desktop/DEV/WORKSPACE/udemy-spring-microservices/udemy-microservices/tuto-3-spring-cloud-k8s/helm/environments]
+└──╼ $helm install eazybank prod-env/
+NAME: eazybank
+LAST DEPLOYED: Sun May  4 02:37:08 2025
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+

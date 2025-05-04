@@ -1,0 +1,17 @@
+NOTES:
+
+	- build docker image using buildpacks
+		* add image name details in pom.xml
+		      <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                  <!-- ************** add this block **************-->
+                  <image>
+                    <name>anweress/${project.artifactId}:s4</name>
+                  </image>
+                  <!-- *******************************************-->
+					...
+				</configuration>
+              </plugin>
+		* mvn spring-boot:build-image
