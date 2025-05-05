@@ -1130,6 +1130,16 @@ NOTES:
 		* install a usefull jetbrains extension 'kafkalytic' (look at ${ProjectFolder}/notes/kafka/img_00{1..2}.png)
 
 
+	- Optimizing Microservices Development with Spring Boot BOM
+		* create eazybank-bom module and update pom.xml
+			- add <packaging>pom</packaging>
+			- add properties
+			- add dependency management
+			- remove dependencies
+		* in others microservices
+			- add dependency management
+			replace some hardcoded versions with props
+
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.
 	@EnableFeignClients // enable Feign Clients
