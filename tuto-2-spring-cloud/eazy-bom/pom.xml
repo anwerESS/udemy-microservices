@@ -48,7 +48,9 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
+  <modules>
+    <module>common</module>
+  </modules>
   <dependencyManagement>
     <dependencies>
       <dependency>

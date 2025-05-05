@@ -1,4 +1,4 @@
-package org.example.accounts.dto;
+package org.example.common.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

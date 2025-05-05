@@ -1,7 +1,7 @@
 package org.example.loans.controller;
 
+import org.example.common.dto.ErrorResponseDto;
 import org.example.loans.constants.LoansConstants;
-import org.example.loans.dto.ErrorResponseDto;
 import org.example.loans.dto.LoansContactInfoDto;
 import org.example.loans.dto.LoansDto;
 import org.example.loans.dto.ResponseDto;

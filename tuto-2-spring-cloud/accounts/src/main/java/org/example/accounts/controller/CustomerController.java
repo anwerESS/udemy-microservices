@@ -1,7 +1,6 @@
 package org.example.accounts.controller;
 
 import org.example.accounts.dto.CustomerDetailsDto;
-import org.example.accounts.dto.ErrorResponseDto;
 import org.example.accounts.service.ICustomersService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Pattern;
 import org.apache.http.HttpStatus;
+import org.example.common.dto.ErrorResponseDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;

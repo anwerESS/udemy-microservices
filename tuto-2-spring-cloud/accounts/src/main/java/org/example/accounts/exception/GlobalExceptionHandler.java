@@ -1,7 +1,6 @@
 package org.example.accounts.exception;
 
-import org.example.accounts.dto.ErrorResponseDto;
-import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
+import org.example.common.dto.ErrorResponseDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;

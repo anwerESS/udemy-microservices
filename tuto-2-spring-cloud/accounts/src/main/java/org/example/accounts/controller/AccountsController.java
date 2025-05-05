@@ -10,14 +10,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
 import org.example.accounts.constants.AccountsConstants;
 import org.example.accounts.dto.AccountsContactInfoDto;
 import org.example.accounts.dto.CustomerDto;
-import org.example.accounts.dto.ErrorResponseDto;
 import org.example.accounts.dto.ResponseDto;
 import org.example.accounts.service.IAccountsService;
 //import org.hibernate.cfg.Environment; (wrong import)
+import org.example.common.dto.ErrorResponseDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

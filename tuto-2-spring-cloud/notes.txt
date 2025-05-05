@@ -1140,6 +1140,33 @@ NOTES:
 			- add dependency management
 			replace some hardcoded versions with props
 
+	- Shared Libraries in Microservices
+		* create submodule "common" under eazy-bom that can contain multiple modules
+		* add in pom.xml
+			<modules>
+				<module>common</module>
+			</modules>
+
+			<parent>
+				<groupId>com.eazybytes</groupId>
+				<artifactId>eazy-bom</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+				<relativePath>../eazy-bom/pom.xml</relativePath>
+			</parent>
+
+			<version>${common-lib.version}</version>
+
+			<description>Common Project for eazybank microservices</description>
+
+
+		* add in pom.xml of eazy-bom
+			<properties>
+				<common-lib.version>1.0.0</common-lib.version>
+
+		* remove CommonApplication (because it's  alib)
+
+		* remove ErrorResponseDto class from all ms and move it to common
+
 ANNOTATIONS:
 	@FeignClient("cards")  // Declares this interface as a Feign client for the "cards" service.
 	@EnableFeignClients // enable Feign Clients
